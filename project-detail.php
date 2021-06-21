@@ -2,6 +2,8 @@
 require_once './inc/util.php';
 
 ?>
+<link rel="stylesheet" href="./style/main.css">
+
 <section class="project-detail">
 <?php
 $project = new \NeueMedien\Project($_GET['pid']);
