@@ -3,7 +3,9 @@ namespace DB;
 
 final class Database
 {
+	/** @param \DB\Database $db */
 	private static $db;      // Instance of Database
+	/** @param \PDO $connection */
 	private $connection;     // PDO Connection
 
   /**
@@ -35,7 +37,7 @@ final class Database
 	/**
 	 * Retrieve the connection object
 	 * construct the first time
-	 * @return PDOConnection 
+	 * @return \PDO
 	 */
 	public static function getConnection()
 	{
@@ -47,9 +49,10 @@ final class Database
 
   /**
 	 * create a customized Exception
+	 * @return DatabaseException
 	 */
 	public function getException()
 	{
-		return new \db\Exception( 0x2100, null, $this->connection->errorInfo()[2] );
+		return new DatabaseException( 0x2100, null, $this->connection->errorInfo()[2] );
 	}
 }
