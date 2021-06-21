@@ -6,7 +6,7 @@ require_once './inc/util.php';
 <?php
 $projects = new \NeueMedien\ProjectView();
 foreach( $projects as $pID=>$p ){
-  echo "<a class='project-tile' href=projectDetail.php?pid=$pID>";
+  echo "<a class='project-tile' href=project-detail.php?pid=$pID>";
   echo wrap_tag('div',
     wrap_tag( 'h2', $p-> ProjectName ) .
     wrap_tag( 'p', $p-> ProjectDescription ) .
