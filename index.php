@@ -17,5 +17,3 @@ foreach( $projects as $pID=>$p ){
 } 
 ?>
 </section>
-
-<
