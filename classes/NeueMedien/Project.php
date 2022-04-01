@@ -1,21 +1,36 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace NeueMedien;
 
-class Project extends \DB\DBRecord implements \DB\DBRecordInterface {
-	static public function getPrimaryKeyName() { return "ProjectID"; }
-	static public function getTableName() { return "Project"; }
-	static public function getFieldNames()
-	{
-		return 
-		[
-			'ProjectParentID',
-			'ProjectNr',
-			'ProjectName',
-			'ProjectDescription',
-			'ProjectTypeID',
-      'CustomerID',
-      'ProjectCoach',
-      'ProjectStatus'
+/*
+ * project – Persistant object
+ */
+class project implements \DB\DBRecordInterface, \Iterator{
+	use \DB\Persist;
+
+	private $ID;
+	private $ParentID;
+	private $Number;
+	private $Name;
+	private $Description;
+	private $TypeID;
+	private $CustomerID;
+	private $Coach;
+	private $Status;
+
+// Persist functions
+	static public function getPrimaryKey():string { return 'ID'; }
+	static public function getTableName():string { return '`project`'; }
+	static public function getFields():array {
+		return [
+			'ParentID' => ['integer', 10 ],
+			'Number' => ['string', 10 ],
+			'Name' => ['string', 255 ],
+			'Description' => ['string', 8192 ],
+			'TypeID' => ['integer', 10 ],
+			'CustomerID' => ['integer', 10 ],
+			'Coach' => ['string', 3 ],
+			'Status' => ['integer', 3 ],
 		];
 	}
 }

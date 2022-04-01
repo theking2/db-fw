@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Exception - Stub für einfacher Zugang Exception kalse
  * @package db
@@ -9,32 +9,41 @@
 
 namespace db;
 
+/**
+ * DatabaseException
+ */
 class DatabaseException extends \Exception {
 	const ERROR_START = 0x2000; // Vieww errors start here
-	const ERR_STATEMENT =0x2000;
-	const ERR_NOT_RECORD = 0x2001;
-	const ERR_NORECORDS_FOUND = 0x2002;
+	const ERR_STATEMENT = ERROR_START+0;
+	const ERR_NOT_RECORD = ERROR_START+1;
+	const ERR_NORECORDS_FOUND = ERROR_START+2;
 
 	private static $messageEN = array
-	(	self::ERR_STATEMENT=>       'Statement exec error: %s'
-	,	self::ERR_NOT_RECORD=>      '$record is not \db\Record'
-	,	self::ERR_NORECORDS_FOUND=> 'no records found'
+	(	DatabaseException::ERR_STATEMENT=>       'Statement exec error: %s'
+	,	DatabaseException::ERR_NOT_RECORD=>      '$record is not \db\Record'
+	,	DatabaseException::ERR_NORECORDS_FOUND=> 'no records found'
 	);
+			
 	/**
-	 * Constructor uses code to find the English error text
-	 * @param $code int - ::ERR condant
-	 * @param $previous Excption
+	 * __construct
+	 *
+	 * @param  int $code
+	 * @param  \Exception $previous
+	 * @param  string $message
+	 * @return \db\DatabaseException
 	 */
-	public function __construct ($code, $previous = NULL, $message = NULL )
+	public function __construct (int $code, ?\Exception $previous = NULL, ?string $message = NULL )
 	{
-		if( $message )
+		if( $message ){
 			parent::__construct( sprintf(self::$messageEN[$code], $message), $code, $previous );
-		else
+		 } else {
 			parent::__construct( self::$messageEN[$code], $code, $previous );
-
+		}
 	}
+		
 	
-	final function getMessageLang(string $lang)
+
+	final function getMessageLang(string $lang): string
 	{
 		return self::$messageEN[$this->code];
 	}
