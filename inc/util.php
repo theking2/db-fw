@@ -17,7 +17,7 @@ function _log( $mess, $level = 'i' ) {
   global $log_file_handle;
   global $log_file;
   if( !$log_file_handle ) {
-    $log_file_handle = fopen( str_replace( '\\', DIRECTORY_SEPARATOR, sprintf( $log_file, gmdate("Ymd") ) ), 'a' );
+    $log_file_handle = fopen( str_replace( '\\', 'DIRECTORY_SEPARATOR', sprintf( $log_file, gmdate("Ymd") ) ), 'a' );
   }
 	fprintf( $log_file_handle, "%s;%s;%s\r" , gmdate("Y-m-d H:i:s"), $level, $mess );
 }

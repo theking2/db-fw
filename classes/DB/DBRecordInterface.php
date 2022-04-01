@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB;
 
 interface DBRecordInterface
 {
-  public function getID();
-  public function getFields();
-  public static function getTableName();
+  public static function getPrimaryKey(): string;
+  public static function getFields(): array;
+  public static function getTableName(): string;
 }

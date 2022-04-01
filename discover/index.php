@@ -60,22 +60,23 @@ while( $table_stat->fetch() ) {
   echo '</ul>';
   $fh = fopen("./src/$table_name.php", 'w');
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
-  fwrite( $fh,"<?php
-namespace NeueMedien;
-  
-class $table_name extends \DB\DBRecord implements \DB\DBRecordInterface {
-  static public function getPrimaryKeyName() { return '$keyname'; }
-  static public function getTableName() { return '$table_name'; }
-  static public function getFieldNames()
-  {
-    return 
-    [
-");
+  fwrite( $fh, "<?php declare(strict_types=1);\n\n" );
+  fwrite( $fh, "namespace NeueMedien;\n\n" );
+  fprintf( $fh, "/*\n * %s – Persistant object\n */\n", $table_name );
+  fprintf( $fh, "class %s implements \\DB\\DBRecordInterface, \\Iterator{\n", $table_name );
+  fwrite( $fh, "\tuse \\DB\\Persist;\n\n" );
+  fprintf( $fh, "\tprivate \$%s;\n", $keyname );
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "'%s' => ['%s', %d ],\n", $fieldName, $fieldDescription[0], $fieldDescription[1] );
+    fprintf( $fh, "\tprivate \$%s;\n", $fieldName );
   };
-  fwrite( $fh, "];
-  }
-}" );
-  fclose($fh);
+  fwrite( $fh, "\n// Persist functions\n" );
+  fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
+  fprintf( $fh, "\tstatic public function getTableName():string { return '`%s`'; }\n", $table_name );
+  fwrite( $fh, "\tstatic public function getFields():array {\n" );
+  fwrite( $fh, "\t\treturn [\n" );
+  foreach( $cols as $fieldName=> $fieldDescription ) {
+    fprintf( $fh, "\t\t\t'%s' => ['%s', %d ],\n", $fieldName, $fieldDescription[0], $fieldDescription[1] );
+  };
+  fwrite( $fh, "\t\t];\n\t}\n}" );
+  fclose( $fh );
 }

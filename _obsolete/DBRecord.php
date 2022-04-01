@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB;
 /**
@@ -17,11 +17,11 @@ abstract class DBRecord implements \Iterator
 	/**
 	 * Iterator implementation
 	 */
-	public function current ( ) { return $this; }
-	public function key ( )	{ return $this->ID; }
-	public function valid ( ) { return $this->valid; }
-	public function next ( ) { return $this->findNext(); }
-	public function rewind ( ) { $this-> findFirst(); }
+	public function current ( ): DBRecord { return $this; }
+	public function key ( ):int	{ return $this->ID; }
+	public function valid ( ): bool { return $this->valid; }
+	public function next ( ): void { $this->findNext(); }
+	public function rewind ( ): void { $this-> findFirst(); }
 
 
 	/** @var PDOStatement $select_statement bind ID for PK; bind columns for select*/
@@ -32,7 +32,7 @@ abstract class DBRecord implements \Iterator
 	 * Result columns are bind to the fields
 	 * @return PDOStatement 
 	 */
-	protected function getSelectStatement()
+	protected function getSelectStatement(): \PDOStatement
 	{
 		if( is_null( $this->select_statement ) ) {
 			$query = sprintf
@@ -58,7 +58,7 @@ abstract class DBRecord implements \Iterator
 	 * Result columns are bind to the fields
 	 * @return PDOStatement 
 	 */
-	protected function getInsertStatement()
+	protected function getInsertStatement(): \PDOStatement
 	{
 		if( is_null($this->insert_statement) ) {
 			$query = sprintf( 'insert into `%s`(%s) values( %s )'
@@ -118,7 +118,7 @@ abstract class DBRecord implements \Iterator
 		}
 		return $this->delete_statement;
 	}
-	/*/
+	/*
 	 * Constructor
 	 * @param int $id - wenn nicht null wird den Wert als ID in die Tabelle verwendet.
 	 */
@@ -189,9 +189,10 @@ abstract class DBRecord implements \Iterator
 	 */
 	protected function zeroFieldList()
 	{
-		foreach( static::getFieldNames() as $fieldname )
+		$this-> fields = [];
+		foreach( array_keys(static::getFieldNames()) as $fieldname )
 		{
-			$this->fields[$fieldname] = '';
+			$this-> fields[$fieldname] = '';
 		}
 	}
 	/**
@@ -272,7 +273,7 @@ abstract class DBRecord implements \Iterator
 	private function getWhereByExample()
 	{
 		$where = ['0=0']; // do nothing
-		foreach( static::getFieldNames() as $fieldname ) {
+		foreach( static::getFieldNames() as $fieldname=> $description ) {
 			if( $this->fields[$fieldname] != '' ) {
 				if( strstr('=!*<>&|^U', substr( $this-> $fieldname,0, 1 ) ) ) {
 					$operator = substr( $this-> $fieldname, 0, 1);
@@ -387,7 +388,7 @@ abstract class DBRecord implements \Iterator
 	*/
 	private function bindValueByExample( $stmt )
 	{
-		foreach( static::getFieldNames() as $fieldname )
+		foreach( array_keys(static::getFieldNames()) as $fieldname )
 		{
 			if( is_array($this-> fields[$fieldname]) ) {
 				for( $i=0; $i < count($this-> fields[$fieldname]); $i++) {
@@ -483,7 +484,7 @@ abstract class DBRecord implements \Iterator
 			$result = '';
 	
 		return $result .= '`' . static::getTableName( )	. '`.' . 
-			'`' . implode( '`, `'.static::getTableName( ) . '`.`', static::getFieldNames( ) ) . '`';
+			'`' . implode( '`, `'.static::getTableName( ) . '`.`', array_keys( static::getFieldNames( ) ) ) . '`';
 	}
 
 	/**
@@ -502,7 +503,7 @@ abstract class DBRecord implements \Iterator
 	static private function getUpdateList( )
 	{
 		$result = array( );
-		foreach( static::getFieldNames( ) as $field ) {
+		foreach( static::getFieldNames( ) as $field=> $description ) {
 			if( $field === static::getPrimaryKeyName() ) continue;
 			$result[] = '`' . $field . '`=:' . $field;
 		}
@@ -533,7 +534,7 @@ abstract class DBRecord implements \Iterator
 		if( $withID )
 			$stmt->bindColumn( static::getPrimaryKeyName(), $this->ID );
 
-		foreach( static::getFieldNames() as $fieldname ) {
+		foreach( array_keys(static::getFieldNames()) as $fieldname ) {
 			$stmt->bindColumn( $fieldname, $this->fields[$fieldname] );
 		}	
 	}
