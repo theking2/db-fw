@@ -4,6 +4,7 @@ namespace DB;
 trait Persist
 {
   private ?\PDOStatement $current_statement = null;
+	private array $dirty = [];
 
   /* #region CRUD */
     
@@ -38,15 +39,15 @@ trait Persist
 	 */
 	public function freeze( )
 	{
-		if()
-		if( $this->isRecord( ) )
-			$this->update( );
-		else
-			$this->insert( );
+		if( $this-> {$this->getPrimaryKey()} ) {
+			$this->update();
+		} else {
+			$this->insert();
+		}
 	}
 
 	/**
-	 * Neuer Datensatz hinzufügen
+	 * Insert a new record in the database
 	 * NOTE: This is not thread save as between the execute and lastInsertId another
 	 * sql statement could occur yielding the wrong ID to be set.
 	 */
@@ -54,8 +55,8 @@ trait Persist
 	{
 		try {
 			if( $this->getInsertStatement()->execute( ) ) {
-				$this->ID = Database::getConnection( )->lastInsertId( );
-				$this->dirty = array();
+				$this->{$this->getPromaryKey()} = Database::getConnection( )->lastInsertId( );
+				$this->dirty = [];
 			}
 			else {
 				$errorInfo = $this->insert_statement->errorInfo( );
@@ -128,8 +129,9 @@ trait Persist
     switch($this-> getFields()[$field][0]) {
       default : $this-> $field = $value; break;
       case 'DateTime' : $this-> $field = \DateTime::createFromFormat('Y-m-d', $value); break;
-      case 'integer' : $this-> $field = (int)$value; break;
+      case 'int' : $this-> $field = (int)$value; break;
       case 'float' : $this-> $field = (float)$value;
+      case 'bool' : $this-> $field = (bool)$value;
       case 'unsigned' : $this-> $field = (int)$value; break;
     }
   }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 require_once '../inc/util.php';
 
 $type_list = [
-  'integer'=> [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
-  'double'=> [ 'float', 'double', 'real' ],
+  'int'=> [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
+  'float'=> [ 'float', 'double', 'real' ],
   'string'=> [ 'char', 'varchar', 'text' ],
-  'boolean'=> [ 'bool', 'boolean' ],
+  'bool'=> [ 'bool', 'boolean' ],
   'DateTime'=> [ 'date', 'datetime', 'time' ]
 ];
 
@@ -65,9 +65,9 @@ while( $table_stat->fetch() ) {
   fprintf( $fh, "/*\n * %s – Persistant object\n */\n", $table_name );
   fprintf( $fh, "class %s implements \\DB\\DBRecordInterface, \\Iterator{\n", $table_name );
   fwrite( $fh, "\tuse \\DB\\Persist;\n\n" );
-  fprintf( $fh, "\tprivate \$%s;\n", $keyname );
+  fprintf( $fh, "\tprivate ?%s\$%s;\n", str_pad($fieldDescription[0],20), $keyname );
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\tprivate \$%s;\n", $fieldName );
+    fprintf( $fh, "\tprivate ?%s\$%s;\n", str_pad($fieldDescription[0],20) , $fieldName );
   };
   fwrite( $fh, "\n// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
