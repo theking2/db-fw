@@ -34,13 +34,11 @@ trait Persist
   }
 
 	/**
-	 * Record in Datenbank speichern
-	 * If $id is not either update the record by id or insert a new record
-	 * If $id is set than insert a new record under that ID
-	 * Update is not supported wiht a specified $id
+	 * create – create a new record in the database or update an existing one
 	 */
-	public function store( )
+	public function freeze( )
 	{
+		if()
 		if( $this->isRecord( ) )
 			$this->update( );
 		else
@@ -302,6 +300,7 @@ trait Persist
   /* #endregion */
 
   /* #region general purpose*/
+	public function isRecord():bool { return $this-> {static::getPrimaryKey()} > 0; }
   private static function _q(string $value):string { return '`'.$value.'`'; }
   
 	/**
