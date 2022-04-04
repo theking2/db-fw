@@ -8,29 +8,30 @@ namespace NeueMedien;
 class project implements \DB\DBRecordInterface, \Iterator{
 	use \DB\Persist;
 
-	private $ID;
-	private $ParentID;
-	private $Number;
-	private $Name;
-	private $Description;
-	private $TypeID;
-	private $CustomerID;
-	private $Coach;
-	private $Status;
+	private int                 $ID;
+	private int                 $ParentID;
+	private string              $Number;
+	private string              $Name;
+	private string              $Description;
+	private int                 $TypeID;
+	private int                 $CustomerID;
+	private string              $Coach;
+	private int                 $Status;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }
 	static public function getTableName():string { return '`project`'; }
 	static public function getFields():array {
 		return [
-			'ParentID' => ['integer', 10 ],
+			'ID' => ['int', 10 ],
+			'ParentID' => ['int', 10 ],
 			'Number' => ['string', 10 ],
 			'Name' => ['string', 255 ],
 			'Description' => ['string', 8192 ],
-			'TypeID' => ['integer', 10 ],
-			'CustomerID' => ['integer', 10 ],
+			'TypeID' => ['int', 10 ],
+			'CustomerID' => ['int', 10 ],
 			'Coach' => ['string', 3 ],
-			'Status' => ['integer', 3 ],
+			'Status' => ['int', 3 ],
 		];
 	}
 }
