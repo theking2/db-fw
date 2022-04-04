@@ -22,6 +22,10 @@ function _log( $mess, $level = 'i' ) {
 	fprintf( $log_file_handle, "%s;%s;%s\r" , gmdate("Y-m-d H:i:s"), $level, $mess );
 }
 
+if(!defined('PATH_ROOT')) {
+  define('PATH_ROOT', __DIR__ . '/../');
+}
+
 spl_autoload_register( 'load_class' );
 /**
  * Class autoloader
@@ -32,7 +36,7 @@ spl_autoload_register( 'load_class' );
  */
 function load_class( $className )
 {
-	$fileName = __DIR__.'/../classes/' . str_replace('\\', DIRECTORY_SEPARATOR,$className) . '.php';
+	$fileName = PATH_ROOT.'classes/' . str_replace('\\', DIRECTORY_SEPARATOR,$className) . '.php';
 	require_once $fileName;
 }
 
