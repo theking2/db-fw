@@ -56,7 +56,7 @@ while( $table_stat->fetch() ) {
   fwrite( $fh, "<?php declare(strict_types=1);\n\n" );
   fwrite( $fh, "namespace NeueMedien;\n\n" );
   fprintf( $fh, "/*\n * %s – Persistant object\n */\n", $table_name );
-  fprintf( $fh, "class %s implements \\DB\\DBRecordInterface, \\Iterator{\n", $table_name );
+  fprintf( $fh, "final class %s implements \\DB\\DBRecordInterface, \\Iterator{\n", $table_name );
   fwrite( $fh, "\tuse \\DB\\Persist;\n\n" );
   foreach( $cols as $fieldName=> $fieldDescription ) {
     fprintf( $fh, "\tprivate %s\$%s;\n", str_pad($fieldDescription[0],10) , $fieldName );

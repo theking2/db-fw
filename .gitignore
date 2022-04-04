@@ -1,1 +1,2 @@
-/discover/src
+/discover/src/
+!/discover/src/.gitignore
