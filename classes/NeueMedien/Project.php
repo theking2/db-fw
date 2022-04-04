@@ -7,6 +7,7 @@ namespace NeueMedien;
  */
 class project implements \DB\DBRecordInterface, \Iterator{
 	use \DB\Persist;
+	use \DB\json;
 
 	private int                 $ID;
 	private int                 $ParentID;
