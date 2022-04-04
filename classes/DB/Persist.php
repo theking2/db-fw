@@ -4,21 +4,132 @@ namespace DB;
 trait Persist
 {
   private ?\PDOStatement $current_statement = null;
-	private array $dirty = [];
+	private array $_dirty = [];
+	private array $_where = [];
 
-  /* #region CRUD */
-    
+
+	/* #region helpers */
+	/**
+	 * isRecord
+	 *
+	 * @return bool - true if record exists in database
+	 */
+	public function isRecord():bool { return $this-> {static::getPrimaryKey()} > 0; }  
   /**
-   * thaw – fetch a record from the database
+   * _q - wrap fields in backticks
    *
-   * @param  mixed $id
+   * @param  string $value
+   * @return string
+   */
+  private static function _q(string $field):string { return '`'.$field.'`'; }
+  /**
+   * wrapFieldArray - wrap field names in backticks and precede with table name
+   *
+   * @param  array $fields
+   * @return string
+   */
+  static private function wrapFieldArray(array $fields):string {
+      return static::getTableName().'.`'.implode('`, '.self::getTableName().'.`', $fields).'`';
+  }
+	static private function getFieldNames(?bool $withID = true):array {
+		if( $withID ) return array_keys(static::getFields());
+		
+		$result = [];
+		foreach(array_keys(static::getFields()) as $field) {
+			if( $field != static::getPrimaryKey() ) {
+				$result[] = $field;
+			}
+		}
+		return $result;
+	}
+	/**
+	 * getFieldPlaceholders - get placeholders for fields prefixed with :
+	 * @param bool $withID - include ID field
+	 * @return string - placeholders
+	 */
+	static private function getFieldPlaceHolders( ?bool $withID = true ):string
+	{
+		if( $withID ) return ":".implode( ',:', self::getFieldNames() );
+
+		$result = [];
+		foreach( self::getFieldNames($withID) as $fieldname ) {
+			if( $fieldname !== static::getPrimaryKey() ) {
+				$result[] = ':'.$fieldname;
+			}
+		}
+		return implode(',', $result);
+	}
+	/**
+	 * getFieldList
+	 *
+	 * @param  mixed $_dirty - if true, only dirty fields are returned
+	 * @return string
+	 */
+	private function getUpdateFieldList( ?bool $_dirty=false ): string
+	{
+		$result = [];
+		foreach( static::getFields( ) as $field=> $description ) {
+			// don't update primary key
+			if( $field === static::getPrimaryKey() ) continue;
+			if( $_dirty or in_array( $field, $this-> _dirty ) ) {
+				$result[] = "`$field` = :$field";
+			}
+		}
+		return implode( ',', $result );
+	}
+	/**
+	 * getFieldList return the list with or without PK column
+	 * @param bool $withID - include ID field
+	 */
+	static protected function getSelectFields( ?bool $withID=false ):string
+	{
+		return static::wrapFieldArray( static::getFieldNames($withID) );
+	} 
+	/**
+	 * bindFieldList
+	 *
+	 * @param  mixed $stmt
+	 * @param  mixed $_dirty - if true, only dirty fields are bound
+	 * @return void
+	 */
+	private function bindFieldList( \PDOStatement $stmt, ?bool $_dirty=false ): void
+	{
+		foreach( static::getFields( ) as $field=> $description ) {
+			// don't update primary key
+			if( $field === static::getPrimaryKey() ) continue;
+			if( $_dirty or in_array( $field, $this-> _dirty ) ) {
+				$stmt->bindParam( ':'.$field, $this-> $field );
+			}
+		}
+	}
+	/* #endregion helpers */
+	
+  /* #region CRUD */
+	
+	/**
+	 * create – create a new record in the database or update an existing one
+	 * @return bool
+	 */
+	public function freeze( ):bool
+	{
+		if( isset($this-> {$this->getPrimaryKey()}) ) {
+			return $this->update();
+		}
+		return $this->insert();
+	}
+
+  /**
+   * thaw – fetch a record from the database by key
+	 * this assumes keys are singel and ints!!
+   *
+   * @param  int $id
    * @return object
    */
   public function thaw(int $id): object
   {
     $query = sprintf
       ( 'select %s from %s where `%s` = :ID'
-      , static::getFieldList( false )
+      , self::getSelectFields( false )
       , static::getTableName()
       , static::getPrimaryKey( )
       );
@@ -28,6 +139,7 @@ trait Persist
     if( !$stmt-> execute([':ID'=>$id]) ) throw new \Exception($stmt->errorInfo()[2]);
 		if( $obj = $stmt-> fetch( \PDO::FETCH_INTO ) ) {
 			$this-> {$this->getPrimaryKey()} = $id;
+			$this-> _dirty = [];
 			return $obj;
 		} else {
 			return null;
@@ -35,55 +147,70 @@ trait Persist
   }
 
 	/**
-	 * create – create a new record in the database or update an existing one
-	 */
-	public function freeze( )
-	{
-		if( $this-> {$this->getPrimaryKey()} ) {
-			$this->update();
-		} else {
-			$this->insert();
-		}
-	}
-
-	/**
 	 * Insert a new record in the database
 	 * NOTE: This is not thread save as between the execute and lastInsertId another
 	 * sql statement could occur yielding the wrong ID to be set.
+	 * @return bool
 	 */
-	protected function insert( )
+	protected function insert( ): bool
 	{
 		try {
 			if( $this->getInsertStatement()->execute( ) ) {
-				$this->{$this->getPromaryKey()} = Database::getConnection( )->lastInsertId( );
-				$this->dirty = [];
+				$this->{$this->getPrimaryKey()} = (int)Database::getConnection( )->lastInsertId( );
+				$this-> _dirty = [];
+				return true;
 			}
 			else {
 				$errorInfo = $this->insert_statement->errorInfo( );
 				$message = sprintf( 'Could not save "%s". (%s)', static::getTableName(), $errorInfo[2] );
 				throw new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
+				return false;
 			}
 		} catch( \Exception $e ) {
 			error_log( $e-> getMessage() );
+			return false;
 		}
 	}
-
 	/**
 	 * Synchronize changes in Database
-	 * @return void
+	 * @return bool
 	 */
-	protected function update( )
+	protected function update( ):bool
 	{
-		if( $this->getUpdateStatement()->execute( ) ) {
-			$this->dirty = array();
-		}
-		else {
+		try {
+			if( $this->getUpdateStatement()->execute( ) ) {
+				$this-> _dirty = [];
+				return true;
+			}
 			$errorInfo = $this->getUpdateStatement()->errorInfo( );
 			$message = sprintf( 'Could not save %s. (%s):', static::getTableName(), $errorInfo[2], $this-> update_statement-> debugDumpParams() );
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
+
+		} catch( \Exception $e ) {
+			error_log( $e-> getMessage() );
+			return false;
 		}
 	}
+		/**
+	 * Datensatz $this->ID aus der Tabelle entfernen
+	 * If $constraint is set than use this to select the records to delete
+	 * If $constraint is not set than delete thre record by ID
+	 */
+	public function delete( )
+	{
+		if( $this->getDeleteStatement()-> execute( ) ) {
+			$this-> _dirty = [];
+			$this->{$this-> getPrimaryKey()} = 0;
+		}
+		else {
+			$errorInfo = $this->getDeleteStatement()-> errorInfo( );
+			$message = sprintf( 'Could not delete %s, (%s)', $this->getTableName(), $errorInfo[2] );
+			throw new \Exception( $message );
+		}
+	}
+	/* #endregion CRUD */
 
+	/* #region Traversal */
   /**
    * findFirst
    *
@@ -91,21 +218,21 @@ trait Persist
    * @return void
    */
   function findFirst(?string $order=null) {
-    $query = sprintf( 'select %s from %s', $this->getFieldList(true), $this->getTableName() );
-    $query .= ' where ' . $this-> getWhereByExample();
+    $query = sprintf( 'select %s from %s', self::getSelectFields(true), $this->getTableName() );
+    $query .= ' where ' . $this-> getWhere();
     if( !is_null($order) && is_array($order) ) {
       $query .= sprintf(' order by ');
       $query .= static::wrapFieldArray($order);
     }
     $stmt = Database::getConnection()-> prepare($query);
-    $this-> bindValueByExample($stmt);
+    $this-> bindWhere($stmt);
     $stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
     if( !$stmt-> execute() ) throw new \Exception($stmt->errorInfo()[2]);
     if( $stmt-> fetch() ) {
       $this-> current_statement = $stmt;
       $this-> valid = true;
-			$this-> dirty = [];
+			$this-> _dirty = [];
     } else {
       $this-> valid = false;
     }
@@ -118,16 +245,170 @@ trait Persist
 	{
     if($this->current_statement->fetch()) {
 		  $this-> valid = true; 
-			$this-> dirty = [];
+			$this-> _dirty = [];
       return true;
     } else {
       $this-> valid = false;
       return false;
     }
   } 
+  /* #endregion Traversal */
+
+  /* #region whereByExample */
+	public function setWhere(array $where):void {
+		$this-> _where = $where;
+	}
+  /**
+	 * Construct sql where clause by example, the operators are
+	 * = equal
+	 * ! not equal
+	 * * like
+	 * < smaller
+	 * > greater
+	 * & bitwise and
+	 * | bitwise or
+	 * ^ bitwise xor
+	 * U IN values
+	 * @return string where string clause
+	 *
+	 */
+	private function getWhere():string
+	{
+		$where = ['0=0']; // do nothing
+		foreach( $this-> _where as $fieldname=> $filter ) {
+			if( strstr('=!*<>&|^U', substr( $filter,0, 1 ) ) ) {
+				$operator = substr( $filter, 0, 1);
+
+				// Pop off the first character
+				$this-> __set($fieldname, substr($filter,1) );
+
+				// Special case of the SQL 'IN' operator
+				if( $operator === 'U' ) {
+
+					// We store the comma seperated operand list as array of values
+					// which will be bound later
+					$in_values = explode(',', $filter);
+
+					// create a comma seperated list of numbered placeholders
+					// "IN (:name_1,:name_2,....)"
+					$in_section = [];
+					for( $i=0; $i < count($in_values); $i++ ) {
+						$in_section[] = ":{$fieldname}_{$i}";
+					}
+					$in_section = implode( ',', $in_section );
+
+					$where[] = "`$fieldname` IN ($in_section)";
+
+				} else {
+
+					switch( $operator ) {
+						case '!':	$operator = '<>';	break;
+						case '*':	$operator = 'like';	break; // the reason why the operands are swapped
+						case '<': $operator = '>'; break; // the operands are swapped!
+						case '>':	$operator = '<'; break; // the operands are swapped!
+						default:break; // we take the operator as it is for all other cases
+					}
+
+					$where[] = ":$fieldname $operator `$fieldname`";
+				}
+			}
+		}
+		$where = implode(' and ', $where );
+		return $where;
+	}
+ 	/**
+	* Bind the set values to the statement
+	* @param PDOStatement $stmt - 
+	*/
+	private function bindWhere( $stmt )
+	{
+		foreach( $this-> _where as $fieldname => $filter ) {
+			if(substr($filter,0,1)==='U' ) {
+				$in_values = explode( ',', substr($filter,1) );
+				for( $i=0; $i < count($in_values); $i++ ) {
+					$stmt->bindValue( ":{$fieldname}_{$i}", $in_values[$i] );
+				}
+			} else {
+				$stmt->bindValue( ":$fieldname", substr($filter,1) );
+			}
+		}
+	}
+
+  /* #endregion */
+  
+  /* #region Cached Statements */
+  /** @var \PDOStatement $insert_statement bind fields to values */
+	private $insert_statement = null;
+	/**
+	 * Create Statement, bind to object members and save
+	 * return cached select statement
+	 * Result columns are bind to the fields
+	 * @return \PDOStatement 
+	 */
+	protected function getInsertStatement(): \PDOStatement
+	{
+		if( is_null($this->insert_statement) ) {
+			$query = sprintf( 'insert into %s(%s) values(%s)'
+				, static::getTableName()
+				, self::getSelectFields( false )
+				, self::getFieldPlaceholders( false )
+				);
+
+			// echo $query . '<br>';
+			$this-> insert_statement = Database::getConnection( )->prepare( $query );
+			$this-> bindFieldList( $this-> insert_statement );
+		}
+		return $this-> insert_statement;
+	}
+	/** @var \PDOStatement $update_statement bind ID param to PK; bind fields to */
+	private $update_statement = null;
+	/**
+	 * Create Statement, bind to object members and save
+	 * return cached select statement
+	 * Result columns are bind to the fields
+	 * @return \PDOStatement 
+	 */
+	private function getUpdateStatement(): \PDOStatement
+	{	
+		$query = sprintf( 'update %s set %s where %s = :ID'
+			, static::getTableName()
+			, $this-> getUpdateFieldList( true )
+			, static::getPrimaryKey( ) );
+
+		$result = Database::getConnection( )-> prepare( $query );
+		$result-> bindParam( ':ID', $this-> {$this-> getPrimaryKey( )} );		
+		$this-> bindFieldList( $result, true );
+
+		return $result;
+	}
+	/** @var \PDOStatement $delete_statement bind ID param to PK */
+	private $delete_statement = null;	
+	/**
+	 * Create Statement, bind to object members and save
+	 * return cached select statement
+	 * Result columns are bind to the fields
+	 * @return \PDOStatement 
+	 */
+	protected function getDeleteStatement()
+	{
+		if( is_null( $this->delete_statement) ) {
+			$query = sprintf( 'delete from %s where `%s` = :ID'
+				, static::getTableName()
+				, static::getPrimaryKey( )
+			);
+			$this->delete_statement = Database::getConnection( )->prepare( $query );
+			$this->delete_statement->bindParam( ':ID', $this->{$this-> getPrimaryKey()} );
+		}
+		return $this->delete_statement;
+	}
+  /* #endregion */
+
+  /* #region general purpose*/	
+
   /* #endregion */
 
   /* #region getters/setters */  
+
   /**
    * __get
    *
@@ -151,173 +432,8 @@ trait Persist
       case 'bool' : $this-> $field = (bool)$value; break;
       case 'unsigned' : $this-> $field = (int)$value; break;
     }
-		$this-> dirty[] = $field;
+		$this-> _dirty[] = $field;
   }
-  /* #endregion */
-
-  /* #region whereByExample */
-  /**
-	 * Construct sql where clause by example, the operators are
-	 * = equal
-	 * ! not equal
-	 * * like
-	 * < smaller
-	 * > greater
-	 * & bitwise and
-	 * | bitwise or
-	 * ^ bitwise xor
-	 * U IN values
-	 * @return string where string clause
-	 *
-	 */
-	private function getWhereByExample():string
-	{
-		$where = ['0=0']; // do nothing
-		foreach( static::getFields() as $fieldname=> $description ) {
-			if( isset($this-> $fieldname) ) {
-				if( strstr('=!*<>&|^U', substr( $this-> $fieldname,0, 1 ) ) ) {
-					$operator = substr( $this-> $fieldname, 0, 1);
-
-					// Pop off the first character
-					$this-> $fieldname = substr($this-> $fieldname,1);
-
-					// Special case of the SQL 'IN' operator
-					if( $operator === 'U' ) {
-
-						// We store the comma seperated operand list as array of values
-						// which will be bound later
-						$this-> fields[$fieldname] = explode(',', $this-> fields[$fieldname]);
-
-						// create a comma seperated list of numbered placeholders
-						// "IN (:name_1,:name_2,....)"
-						$in_section = [];
-						for( $i=0; $i < count($this-> fields[$fieldname]); $i++ ) {
-							$in_section[] = ':'.$fieldname.'_'.$i;
-						}
-						$in_section = implode( ',', $in_section );
-
-						$where[] = "`$fieldname` IN ($in_section)";
-
-					} else {
-
-						switch( $operator ) {
-							case '!':	$operator = '<>';	break;
-							case '*':	$operator = 'like';	break; // the reason why the operands are swapped
-							case '<': $operator = '>'; break; // the operands are swapped!
-							case '>':	$operator = '<'; break; // the operands are swapped!
-							default:break; // we take the operator as it is for all other cases
-						}
-
-						$where[] = ":$fieldname $operator `$fieldname`";
-					}
-				}
-			}
-		}
-		$where = implode(' and ', $where );
-		return $where;
-	}
-
-  /* #endregion */
-  
-  /* #region Cached Statements */
-  /** @var \PDOStatement $insert_statement bind fields to values */
-	private $insert_statement = null;
-	/**
-	 * Create Statement, bind to object members and save
-	 * return cached select statement
-	 * Result columns are bind to the fields
-	 * @return \PDOStatement 
-	 */
-	protected function getInsertStatement(): \PDOStatement
-	{
-		if( is_null($this->insert_statement) ) {
-			$query = sprintf( 'insert into `%s`(%s) values( %s )'
-				, static::getTableName()
-				, self::getFieldList( )
-				, self::getFieldPlacholders( )
-				);
-
-			// echo $query . '<br>';
-			$this->insert_statement = Database::getConnection( )->prepare( $query );
-			$this->bindFields( $this->insert_statement );
-		}
-		return $this->insert_statement;
-	}
-	/**
-	 * getFieldPlaceholders - 
-	 * @return string - all \PDO place holders prefixed :
-	 */
-	static protected function getFieldPlacholders( )
-	{
-		return ':' . implode( ',:', static::getFieldNames( ) );
-	}
-	/** @var \PDOStatement $update_statement bind ID param to PK; bind fields to */
-	private $update_statement = null;
-	/**
-	 * Create Statement, bind to object members and save
-	 * return cached select statement
-	 * Result columns are bind to the fields
-	 * @return \PDOStatement 
-	 */
-	protected function getUpdateStatement()
-	{
-		if( is_null($this->update_statement) ) {
-			$query = sprintf( 'update `%s` set %s where %s = :ID'
-				, static::getTableName()
-				, self::getUpdateList( )
-				, static::getPrimaryKey( ) );
-
-			// echo $query .'<br>';
-			$this->update_statement = Database::getConnection( )->prepare( $query );
-			$this->update_statement->bindParam( ':ID', $this->ID );		
-			$this->bindFields( $this->update_statement );
-		}
-		return $this->update_statement;
-	}
-
-	/** @var \PDOStatement $delete_statement bind ID param to PK */
-	private $delete_statement = null;	
-	/**
-	 * Create Statement, bind to object members and save
-	 * return cached select statement
-	 * Result columns are bind to the fields
-	 * @return \PDOStatement 
-	 */
-	protected function getDeleteStatement()
-	{
-		if( is_null( $this->delete_statement) ) {
-			$query = sprintf( 'delete from `%s` where `%s` = :ID'
-				, static::getTableName()
-				, static::getPrimaryKey( )
-			);
-			$this->delete_statement = Database::getConnection( )->prepare( $query );
-			$this->delete_statement->bindParam( ':ID', $this->ID );
-		}
-		return $this->delete_statement;
-	}
-  /* #endregion */
-
-  /* #region general purpose*/
-	public function isRecord():bool { return $this-> {static::getPrimaryKey()} > 0; }
-  private static function _q(string $value):string { return '`'.$value.'`'; }
-  
-	/**
-	 * getFieldList return the list with or without PK column
-	 * @param bool $withID - true when including parameter
-	 */
-	static protected function getFieldList( ?bool $withID = false ):string
-	{
-		if( $withID )
-			$result = static::getTableName( ). '.' . static::_q(static::getPrimaryKey( )) . ', ';
-		else
-			$result = '';
-	
-		return $result .= static::wrapFieldArray(array_keys(static::getFields( )));
-	}
-  static private function wrapFieldArray(array $fields):string {
-      return static::getTableName().'.`'.implode('`, '.static::getTableName().'.`', $fields).'`';
-  }
-
   /* #endregion */
 
   /* #region Iterator */
