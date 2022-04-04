@@ -8,7 +8,7 @@ $type_list = [
   'float'=> [ 'float', 'double', 'real' ],
   'string'=> [ 'char', 'varchar', 'text' ],
   'bool'=> [ 'bool', 'boolean' ],
-  'DateTime'=> [ 'date', 'datetime', 'time' ]
+  '\DateTime'=> [ 'date', 'datetime', 'time' ]
 ];
 
 $db = \DB\Database::getConnection();
@@ -32,23 +32,16 @@ while( $table_stat->fetch() ) {
 
   $cols = [];
 
-  $type_pattern = '/(.*)\((.*)\)/';
+  $type_pattern = '/(\w*)(\((\d*)\))?(\s(\w*))?/';
   while( $cols_stat->fetch() ) {
     if( $fieldKey === 'PRI' ) {
       $keyname = $fieldName;
     }
-    elseif( in_array( $fieldType, $type_list[ 'DateTime' ] ) ) {
-      $cols[$fieldName] = [ 'DateTime', null ];
-    }  
-    else {
-      preg_match( $type_pattern, $fieldType, $desc );
-      if( count( $desc) !== 3 ) 
-        continue;
-      foreach( $type_list as $php_type => $db_types ) {
-        if( in_array( $desc[1], $db_types ) ) {
-          $cols[$fieldName] = [ $php_type, $desc[2] ];
-          break;
-        }
+    preg_match( $type_pattern, $fieldType, $desc );
+    foreach( $type_list as $php_type => $db_types ) {
+      if( in_array( $desc[1], $db_types ) ) {
+        $cols[$fieldName] = [ $php_type, $desc[3]??0, $desc[5]??'' ];
+        break;
       }
     }
   }
@@ -65,9 +58,8 @@ while( $table_stat->fetch() ) {
   fprintf( $fh, "/*\n * %s – Persistant object\n */\n", $table_name );
   fprintf( $fh, "class %s implements \\DB\\DBRecordInterface, \\Iterator{\n", $table_name );
   fwrite( $fh, "\tuse \\DB\\Persist;\n\n" );
-  fprintf( $fh, "\tprivate ?%s\$%s;\n", str_pad($fieldDescription[0],20), $keyname );
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\tprivate ?%s\$%s;\n", str_pad($fieldDescription[0],20) , $fieldName );
+    fprintf( $fh, "\tprivate %s\$%s;\n", str_pad($fieldDescription[0],10) , $fieldName );
   };
   fwrite( $fh, "\n// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );

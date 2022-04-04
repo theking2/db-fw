@@ -128,7 +128,7 @@ trait Persist
   public function __set(string $field, $value):void {
     switch($this-> getFields()[$field][0]) {
       default : $this-> $field = $value; break;
-      case 'DateTime' : $this-> $field = \DateTime::createFromFormat('Y-m-d', $value); break;
+      case '\DateTime' : $this-> $field = \DateTime::createFromFormat('Y-m-d', $value); break;
       case 'int' : $this-> $field = (int)$value; break;
       case 'float' : $this-> $field = (float)$value;
       case 'bool' : $this-> $field = (bool)$value;
