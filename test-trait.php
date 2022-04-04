@@ -17,9 +17,31 @@ echo "
 {$obj-> CustomerID}
 </pre>";
 
+$obj = new \NeueMedien\Test();
+$name = $obj-> Name = chr(rand(40,90));
+$obj-> groesse = 1.60+rand(0,3);
+$obj-> freeze();
+
+$obj-> Name = "=$name";
+foreach($obj as $key => $value) {
+  $obj-> delete();
+}
+
+
+for( $i=10000; $i>0; $i-- ) {
+  $obj = new \NeueMedien\Test();
+  $obj-> Name = chr(rand(40,90));
+  $obj-> groesse = 1.60+rand(0,30)/100;
+  $obj-> freeze();
+}
 
 $obj = new \NeueMedien\Test();
-$obj-> thaw(1);
-var_dump($obj);
-$obj-> Name = 'Ccc';
-$obj-> freeze();
+$obj-> setWhere( ["groesse" => ">1.62"]);
+foreach( $obj as $id=> $obj) {
+  $obj-> delete();
+}
+$obj = new \NeueMedien\Test();
+$obj-> setWhere( ["Name" => "UY,V"]);
+foreach( $obj as $id=> $obj) {
+  $obj-> delete();
+}

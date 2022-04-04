@@ -10,7 +10,7 @@ class test implements \DB\DBRecordInterface, \Iterator{
 
 	private int       $test_ID;
 	private string    $Name;
-	private float     $grösse;
+	private float     $groesse;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'test_ID'; }
@@ -19,7 +19,7 @@ class test implements \DB\DBRecordInterface, \Iterator{
 		return [
 			'test_ID' => ['int', 10 ],
 			'Name' => ['string', 255 ],
-			'grösse' => ['float', 0 ],
+			'groesse' => ['float', 0 ],
 		];
 	}
 }
