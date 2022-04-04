@@ -8,17 +8,18 @@ namespace NeueMedien;
 class test implements \DB\DBRecordInterface, \Iterator{
 	use \DB\Persist;
 
-	private $test_ID;
-	private $Name;
-	private $grösse;
+	private int       $test_ID;
+	private string    $Name;
+	private float     $grösse;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'test_ID'; }
 	static public function getTableName():string { return '`test`'; }
 	static public function getFields():array {
 		return [
+			'test_ID' => ['int', 10 ],
 			'Name' => ['string', 255 ],
-			'grösse' => ['integer', 5 ],
+			'grösse' => ['float', 0 ],
 		];
 	}
 }

@@ -68,6 +68,21 @@ trait Persist
 		}
 	}
 
+	/**
+	 * Synchronize changes in Database
+	 * @return void
+	 */
+	protected function update( )
+	{
+		if( $this->getUpdateStatement()->execute( ) ) {
+			$this->dirty = array();
+		}
+		else {
+			$errorInfo = $this->getUpdateStatement()->errorInfo( );
+			$message = sprintf( 'Could not save %s. (%s):', static::getTableName(), $errorInfo[2], $this-> update_statement-> debugDumpParams() );
+			throw new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
+		}
+	}
 
   /**
    * findFirst
@@ -90,6 +105,7 @@ trait Persist
     if( $stmt-> fetch() ) {
       $this-> current_statement = $stmt;
       $this-> valid = true;
+			$this-> dirty = [];
     } else {
       $this-> valid = false;
     }
@@ -102,6 +118,7 @@ trait Persist
 	{
     if($this->current_statement->fetch()) {
 		  $this-> valid = true; 
+			$this-> dirty = [];
       return true;
     } else {
       $this-> valid = false;
@@ -130,10 +147,11 @@ trait Persist
       default : $this-> $field = $value; break;
       case '\DateTime' : $this-> $field = \DateTime::createFromFormat('Y-m-d', $value); break;
       case 'int' : $this-> $field = (int)$value; break;
-      case 'float' : $this-> $field = (float)$value;
-      case 'bool' : $this-> $field = (bool)$value;
+      case 'float' : $this-> $field = (float)$value; break;
+      case 'bool' : $this-> $field = (bool)$value; break;
       case 'unsigned' : $this-> $field = (int)$value; break;
     }
+		$this-> dirty[] = $field;
   }
   /* #endregion */
 
@@ -192,35 +210,13 @@ trait Persist
 
 						$where[] = ":$fieldname $operator `$fieldname`";
 					}
-				} else {
-					// Clear other values
-					//$this-> fields[$fieldname] = '';
 				}
 			}
 		}
 		$where = implode(' and ', $where );
 		return $where;
 	}
-  	/**
-	* Bind the set values to the statement
-	* @param \PDOStatement $stmt - 
-	*/
-	private function bindValueByExample( $stmt )
-	{
-		foreach( array_keys(static::getFields()) as $fieldname )
-		{
-      if( !isset($this-> $fieldname) ) continue;
 
-      // Special case of the SQL 'IN' operator
-			if( is_array($this-> $fieldname) ) {
-				for( $i=0; $i < count($this-> $fieldname); $i++) {
-					$stmt->bindValue( ':'.$fieldname.'_'.$i, $this-> $fieldname[$i] );
-				}
-      }
-
-			$stmt->bindValue( ":$fieldname", $this->$fieldname );
-		}
-	}
   /* #endregion */
   
   /* #region Cached Statements */
@@ -321,6 +317,7 @@ trait Persist
   static private function wrapFieldArray(array $fields):string {
       return static::getTableName().'.`'.implode('`, '.static::getTableName().'.`', $fields).'`';
   }
+
   /* #endregion */
 
   /* #region Iterator */
