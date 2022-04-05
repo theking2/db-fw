@@ -10,7 +10,10 @@ trait PersistTrait
 
 	/* #region helpers */
 	/** isRecord - true if record exists in database */
-	public function isRecord():bool { return isset($this-> {static::getPrimaryKey()}) and $this-> {static::getPrimaryKey()} > 0; }  
+	public function isRecord():bool { return isset($this-> {static::getPrimaryKey()}) and $this-> {static::getPrimaryKey()} > 0; } 
+	
+	/** getKeyValue - retrieve current key */
+	public function getKeyValue(): ?int { return $this-> isRecord()? $this-> {static::getPrimaryKey()}: null; }
 
   /** _q - wrap fields in backticks */
   private static function _q(string $field):string { return '`'.$field.'`'; }
@@ -90,12 +93,12 @@ trait PersistTrait
 	 * @param  mixed $_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
-	private function bindFieldList( \PDOStatement $stmt, ?bool $_dirty=false ): void
+	private function bindFieldList( \PDOStatement $stmt, ?bool $dirty=false ): void
 	{
 		foreach( static::getFields( ) as $field=> $description ) {
 			// don't update primary key
 			if( $field === static::getPrimaryKey() ) continue;
-			if( $_dirty or in_array( $field, $this-> _dirty ) ) {
+			if( $dirty or in_array( $field, $this-> _dirty ) ) {
 				$stmt->bindParam( ':'.$field, $this-> $field );
 			}
 		}
@@ -110,7 +113,7 @@ trait PersistTrait
 	 */
 	public function freeze( ):bool
 	{
-		if( isset($this-> {$this->getPrimaryKey()}) ) {
+		if( $this-> {$this->getPrimaryKey()} ) {
 			return $this->update();
 		}
 		return $this->insert();
@@ -127,7 +130,7 @@ trait PersistTrait
   {
     $query = sprintf
       ( 'select %s from %s where `%s` = :ID'
-      , self::getSelectFields( false )
+      , static::getSelectFields( false )
       , static::getTableName()
       , static::getPrimaryKey( )
       );
@@ -348,13 +351,13 @@ trait PersistTrait
 		if( is_null($this->insert_statement) ) {
 			$query = sprintf( 'insert into %s(%s) values(%s)'
 				, static::getTableName()
-				, self::getSelectFields( false )
-				, self::getFieldPlaceholders( false )
+				, static::getSelectFields( false )
+				, static::getFieldPlaceholders( false )
 				);
 
 			// echo $query . '<br>';
 			$this-> insert_statement = Database::getConnection( )->prepare( $query );
-			$this-> bindFieldList( $this-> insert_statement );
+			$this-> bindFieldList( $this-> insert_statement, false );
 		}
 		return $this-> insert_statement;
 	}
@@ -430,6 +433,45 @@ trait PersistTrait
   }
   /* #endregion */
 
+	/* #region generic
+	/**
+   * getArrayCopy - Returns an array copy of the object
+   *
+   * @return array
+   */
+  public function getArrayCopy(): array
+  {
+    $array = [];
+    foreach( array_keys( $this->getFields() ) as $field ) {
+      $array[$field] = (string)$this-> $field;
+    }
+    return $array;
+  }  
+  /**
+   * createFromArray - Create or set from array
+   *
+   * @param  mixed $array
+   * @return Persist
+   */
+  public function setFromArray(array $array): \Persist\PersistInterface {
+    foreach($array as $field=>$value) {
+      $this->__set($field, $value);
+    }
+    return $this;
+  }
+  /**
+   * getJSON Get a json string from a database object
+   *
+   * @return void
+   */
+  public function getJSON() 
+  {
+    return json_encode($this->getArrayCopy(), JSON_FORCE_OBJECT);
+  }
+
+	/* #endregion */
+
+	
 	public function __construct( ?int $id = null )
 	{
 		if( !is_null( $id ) ) {

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Insert</title>
+</head>
+<body>
+  <input type="text" id="name">
+  <input type="number" id="groese">
+  <button id="del">add</button>
+</body>
+<script>
+  const id = document.getElementById('id');
+  const del = document.getElementById('del').addEventListener('click', async ev=>{
+    const response = await fetch(`/test`, {
+      method: 'POST',
+      body: JSON.stringify({
+        Name: 'Aaa',
+        groesse:1.45
+      })
+    });
+    if( !response.ok ) {
+      const message = `Error: ${response.status}`;
+    }
+  });
+</script>
+</html>

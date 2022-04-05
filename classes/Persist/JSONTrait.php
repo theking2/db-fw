@@ -13,17 +13,5 @@ trait JSONTrait
   {
     return json_encode($this->getArrayCopy(), JSON_FORCE_OBJECT);
   }
-  /**
-   * getArrayCopy - Returns an array copy of the object
-   *
-   * @return array
-   */
-  public function getArrayCopy(): array
-  {
-    $array = [];
-    foreach( array_keys( $this->getFields() ) as $field ) {
-      $array[$field] = (string)$this-> $field;
-    }
-    return $array;
-  }
+
 }
