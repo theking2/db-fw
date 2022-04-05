@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace DB;
+namespace Persist;
 
-interface DBRecordInterface
+interface PersistInterface
 {
   public static function getPrimaryKey(): string;
   public static function getFields(): array;

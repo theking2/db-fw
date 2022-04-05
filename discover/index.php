@@ -1,7 +1,9 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 require_once '../inc/util.php';
+if(!defined('_NAMESPAcE')) {
+  define('_NAMESPACE', 'NeueMedien');
+}
 
 $type_list = [
   'int'=> [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
@@ -53,11 +55,16 @@ while( $table_stat->fetch() ) {
   echo '</ul>';
   $fh = fopen("./src/$table_name.php", 'w');
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
-  fwrite( $fh, "<?php declare(strict_types=1);\n\n" );
-  fwrite( $fh, "namespace NeueMedien;\n\n" );
-  fprintf( $fh, "/*\n * %s – Persistant object\n */\n", $table_name );
-  fprintf( $fh, "final class %s implements \\DB\\DBRecordInterface, \\Iterator{\n", $table_name );
-  fwrite( $fh, "\tuse \\DB\\Persist,\\DB\\json;\n\n" );
+  fwrite( $fh, "<?php declare(strict_types=1);\n" );
+  fprintf( $fh, "namespace %s;\n\n", _NAMESPACE );
+  fprintf( $fh, "/*\n * %s – Persistant DB object\n */\n", $table_name );
+  fprintf( $fh, "final class %s implements \\Persist\\PersistInterface, \\Iterator\n{\n", $table_name );
+  fwrite( $fh, "\tuse \\DB\\PersistTrait,\\Persist\PersistIteratorTrait;\n\n" );
+  // fwrite( $fh, "\t/**\n" );
+  // foreach( $cols as $fieldName=> $fieldDescription ) {
+  //   fprintf( $fh, "\t * @var %s%s;\n", str_pad($fieldDescription[0],10) , $fieldName );
+  // };
+  // fwrite( $fh, "\t*/\n" );
   foreach( $cols as $fieldName=> $fieldDescription ) {
     fprintf( $fh, "\tprivate %s\$%s;\n", str_pad($fieldDescription[0],10) , $fieldName );
   };
