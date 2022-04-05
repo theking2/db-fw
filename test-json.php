@@ -6,14 +6,13 @@ if( isset($_GET['id']) ) {
   $id = $_GET['id'];
   $project = new \NeueMedien\project($id);
   $project->thaw( (int)$id );
-  echo $project->getJSON();
+  echo json_encode($project-> getArrayCopy() );
 } else {
-  echo '[';
+  $result = [];
   foreach( new \NeueMedien\project() as $id=> $project ) {
-    echo $project->getJSON();
-    echo ',';
+    $result[] = $project-> getArrayCopy();
   }
-  echo ']';
 
+  header("Content-Type: application/json; charset=UTF-8");
+  echo json_encode( $result );
 }
-

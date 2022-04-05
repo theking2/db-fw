@@ -6,7 +6,7 @@ namespace NeueMedien;
  */
 final class project implements \Persist\PersistInterface, \Iterator
 {
-	use \DB\PersistTrait,\Persist\PersistIteratorTrait, \Persist\JSONTrait;
+	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
 
 	private int       $ID;
 	private int       $ParentID;

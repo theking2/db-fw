@@ -6,7 +6,7 @@ namespace NeueMedien;
  */
 final class test implements \Persist\PersistInterface, \Iterator
 {
-	use \DB\PersistTrait,\Persist\PersistIteratorTrait, \Persist\JSONTrait;
+	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
 
 	private int       $test_ID;
 	private string    $Name;
