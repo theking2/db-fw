@@ -1,6 +1,10 @@
-<?php
+<?php declare(strict_types=1);
+
+if(!defined('PATH_ROOT')) {
+  define('PATH_ROOT', __DIR__ . '/../');
+}
 if( !isset($log_file) ) {
-  $log_file ='log\project_%s.log';
+  $log_file = PATH_ROOT.'log\project_%s.log';
 }
 $log_file_handle = null;
 
@@ -17,14 +21,12 @@ function _log( $mess, $level = 'i' ) {
   global $log_file_handle;
   global $log_file;
   if( !$log_file_handle ) {
-    $log_file_handle = fopen( str_replace( '\\', 'DIRECTORY_SEPARATOR', sprintf( $log_file, gmdate("Ymd") ) ), 'a' );
+    $log_file_handle = fopen( sprintf( $log_file, gmdate("Ymd") ), 'a' );
   }
 	fprintf( $log_file_handle, "%s;%s;%s\r" , gmdate("Y-m-d H:i:s"), $level, $mess );
 }
 
-if(!defined('PATH_ROOT')) {
-  define('PATH_ROOT', __DIR__ . '/../');
-}
+
 
 spl_autoload_register( 'load_class' );
 /**

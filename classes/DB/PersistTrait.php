@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace DB;
 
-trait Persist
+trait PersistTrait
 {
   private ?\PDOStatement $current_statement = null;
 	private array $_dirty = [];
@@ -9,20 +9,12 @@ trait Persist
 
 
 	/* #region helpers */
-	/**
-	 * isRecord
-	 *
-	 * @return bool - true if record exists in database
-	 */
+	/** isRecord - true if record exists in database */
 	public function isRecord():bool { return $this-> {static::getPrimaryKey()} > 0; }  
-  /**
-   * _q - wrap fields in backticks
-   *
-   * @param  string $value
-   * @return string
-   */
+
+  /** _q - wrap fields in backticks */
   private static function _q(string $field):string { return '`'.$field.'`'; }
-  /**
+  /** 
    * wrapFieldArray - wrap field names in backticks and precede with table name
    *
    * @param  array $fields
@@ -30,7 +22,13 @@ trait Persist
    */
   static private function wrapFieldArray(array $fields):string {
       return static::getTableName().'.`'.implode('`, '.self::getTableName().'.`', $fields).'`';
-  }
+  }	
+	/**
+	 * getFieldNames - get field names from the parts, great for Iterators
+	 *
+	 * @param  mixed $withID - include the key
+	 * @return array
+	 */
 	static private function getFieldNames(?bool $withID = true):array {
 		if( $withID ) return array_keys(static::getFields());
 		
@@ -403,10 +401,6 @@ trait Persist
 	}
   /* #endregion */
 
-  /* #region general purpose*/	
-
-  /* #endregion */
-
   /* #region getters/setters */  
 
   /**
@@ -436,14 +430,14 @@ trait Persist
   }
   /* #endregion */
 
-  /* #region Iterator */
-  /** @var bool $valid true if a valid object */
-  private bool $valid = false;
-  
-	public function current ( ): object { return $this; }
-	public function key ( )	{ return $this-> {$this->getPrimaryKey()} ; }
-	public function valid ( ): bool { return $this-> valid; }
-	public function next ( ): void { $this-> findNext(); }
-	public function rewind ( ): void { $this-> findFirst(); }
-  /* #endregion */
+	public function __construct( ?int $id = null )
+	{
+		if( !is_null( $id ) ) {
+			$this-> thaw( $id );
+		} else {
+			$this-> _dirty = [];
+			$this-> {$this-> getPrimaryKey()} = 0;
+		}
+	}
+
 }
