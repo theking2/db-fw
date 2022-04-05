@@ -10,7 +10,7 @@ if( !isset($uri[1]) or !in_array($uri[1], $allowed) ) {
   header("HTTP/1.1 404 Not Found");
   die( "<h1>Not Found</h1><p>The requested URL was not found on this server.</p><hr>" );
 }
-if( !isset($uri[2]) and gettype($uri[2]!='int') ) {
+if( isset($uri[2]) and gettype($uri[2]!='int') ) {
   header("HTTP/1.1 404 Not Found");
   die( "<h1>Not Found</h1><p>The requested URL was not found on this server.</p><hr>" );
 }
@@ -50,13 +50,11 @@ if ($response['body']) {
 function doGet($uri): array
 {
   if( isset($uri[2]) ) {
-    $response['status_code_header'] = 'HTTP/1.1 200 OK';
     if( $obj = $uri[1]->thaw((int)$uri[2]) ) {
+      $response['status_code_header'] = 'HTTP/1.1 200 OK';
       $response['body'] = $obj-> getJSON();
     } else {
-      $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
-      $response['body'] = null;
-      return $response;
+      return notFoundResponse();
     }
   } else {
     $result = [];
@@ -69,15 +67,37 @@ function doGet($uri): array
 
   return $response;
 }
-function response( $status,$status_message,$body )
+
+function doPost($uri): array
 {
-	header("HTTP/1.1 ".$status);
-  header("Access-Control-Allow-Origin: *");
-  header("Content-Type: application/json; charset=UTF-8");
-  header("Access-Control-Allow-Methods: OPTIONS,GET,POST,PUT,DELETE");
-  header("Access-Control-Max-Age: 3600");
-  header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+  $response = [];
+  return $response;
+}
 
-	$json_response = json_encode($response);
+function doPut($uri): array
+{
+  $response = [];
+  return $response;
+}
+function doDelete($uri): array
+{
+  $response = [];
+  if( !isset($uri[2]) ) {
+    return notFoundResponse();
+  }
+  if( $obj = $uri[1]->thaw((int)$uri[2]) ) {
+      $response['status_code_header'] = 'HTTP/1.1 200 OK';
+      $response['body'] = $obj->delete();
+    } else {
+      return notFoundResponse();
+    }
 
+  return $response;
+}
+
+function notFoundResponse()
+{
+    $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
+    $response['body'] = null;
+    return $response;
 }
