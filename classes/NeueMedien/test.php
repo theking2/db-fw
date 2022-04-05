@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
-
 namespace NeueMedien;
 
 /*
- * test – Persistant object
+ * test – Persistant DB object
  */
-class test implements \DB\DBRecordInterface, \Iterator{
-	use \DB\Persist;
+final class test implements \Persist\PersistInterface, \Iterator
+{
+	use \DB\PersistTrait,\Persist\PersistIteratorTrait, \Persist\JSONTrait;
 
 	private int       $test_ID;
 	private string    $Name;

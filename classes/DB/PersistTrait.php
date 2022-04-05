@@ -10,7 +10,7 @@ trait PersistTrait
 
 	/* #region helpers */
 	/** isRecord - true if record exists in database */
-	public function isRecord():bool { return $this-> {static::getPrimaryKey()} > 0; }  
+	public function isRecord():bool { return isset($this-> {static::getPrimaryKey()}) and $this-> {static::getPrimaryKey()} > 0; }  
 
   /** _q - wrap fields in backticks */
   private static function _q(string $field):string { return '`'.$field.'`'; }
@@ -123,7 +123,7 @@ trait PersistTrait
    * @param  int $id
    * @return object
    */
-  public function thaw(int $id): object
+  public function thaw(int $id): ?object
   {
     $query = sprintf
       ( 'select %s from %s where `%s` = :ID'
@@ -135,10 +135,10 @@ trait PersistTrait
     $stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
     if( !$stmt-> execute([':ID'=>$id]) ) throw new \Exception($stmt->errorInfo()[2]);
-		if( $obj = $stmt-> fetch( \PDO::FETCH_INTO ) ) {
+		if( $stmt-> fetch( \PDO::FETCH_INTO ) ) {
 			$this-> {$this->getPrimaryKey()} = $id;
 			$this-> _dirty = [];
-			return $obj;
+			return $this;
 		} else {
 			return null;
 		}
