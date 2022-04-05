@@ -11,14 +11,14 @@ trait JSONTrait
    */
   public function getJSON() 
   {
-    return json_encode($this->getArrayCopy());
+    return json_encode($this->getArrayCopy(), JSON_FORCE_OBJECT);
   }
   /**
    * getArrayCopy - Returns an array copy of the object
    *
    * @return array
    */
-  private function getArrayCopy(): array
+  public function getArrayCopy(): array
   {
     $array = [];
     foreach( array_keys( $this->getFields() ) as $field ) {

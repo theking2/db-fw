@@ -1,28 +1,28 @@
 
 @font-face{ 
 	font-family: 'Cadman';
-	src: url('../assets/fonts/Cadman_Roman-webfont.woff') format('woff');
+	src: url('../fonts/Cadman_Roman-webfont.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face{ 
 	font-family: 'Cadman';
-	src: url('../assets/fonts/Cadman_Bold-webfont.woff') format('woff');
+	src: url('../fonts/Cadman_Bold-webfont.woff') format('woff');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face{ 
 	font-family: 'Cadman';
-	src: url('../assets/fonts/Cadman_Italic-webfont.woff') format('woff');
+	src: url('../fonts/Cadman_Italic-webfont.woff') format('woff');
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face{ 
 	font-family: 'Cadman';
-	src: url('../assets/fonts/Cadman_BoldItalic-webfont.woff') format('woff');
+	src: url('../fonts/Cadman_BoldItalic-webfont.woff') format('woff');
   font-weight: bold;
   font-style: italic;
 }
@@ -47,7 +47,7 @@ html {
 
 a.project-tile {
   display: block;
-  height: 8em;
+  height: 10em;
   width:  300px;
   padding: 10px;
   margin: 10px 20px;
