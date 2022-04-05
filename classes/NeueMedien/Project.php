@@ -1,23 +1,22 @@
 <?php declare(strict_types=1);
-
 namespace NeueMedien;
 
 /*
- * project – Persistant object
+ * project – Persistant DB object
  */
-class project implements \DB\DBRecordInterface, \Iterator{
-	use \DB\Persist;
-	use \DB\json;
+final class project implements \Persist\PersistInterface, \Iterator
+{
+	use \DB\PersistTrait,\Persist\PersistIteratorTrait, \Persist\JSONTrait;
 
-	private int                 $ID;
-	private int                 $ParentID;
-	private string              $Number;
-	private string              $Name;
-	private string              $Description;
-	private int                 $TypeID;
-	private int                 $CustomerID;
-	private string              $Coach;
-	private int                 $Status;
+	private int       $ID;
+	private int       $ParentID;
+	private string    $Number;
+	private string    $Name;
+	private string    $Description;
+	private int       $TypeID;
+	private int       $CustomerID;
+	private string    $Coach;
+	private int       $Status;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }

@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
-
 namespace NeueMedien;
 
 /*
- * projectview – Persistant object
+ * projectview – Persistant DB object
  */
-class projectview implements \DB\DBRecordInterface, \Iterator{
-	use \DB\Persist;
+final class projectview implements \Persist\PersistInterface, \Iterator
+{
+	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
 
-	private int                 $ProjectID;
-	private string              $ProjectNr;
-	private string              $ProjectName;
-	private string              $ProjectType;
-	private int                 $ProjectStatus;
-	private string              $Coach;
+	private int       $ProjectID;
+	private string    $ProjectNr;
+	private string    $ProjectName;
+	private string    $ProjectType;
+	private int       $ProjectStatus;
+	private string    $Coach;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'ProjectID'; }
