@@ -15,7 +15,7 @@ if( isset($uri[2]) and !is_numeric($uri[2]) ) {
   die( "<h1>Not Found</h1><p>The requested URL was not found on this server.</p><hr>" );
 }
 $class = "\\NeueMedien\\$uri[1]";
-$uri[1] = new $class;
+$uri[1] = $class;
 
 switch($requestMethod) {
   case 'GET':    $response = doGet($uri);               break;
@@ -39,15 +39,15 @@ if ($response['body']) {
 function doGet($uri): array
 {
   if( isset($uri[2]) ) {
-    if( $obj = $uri[1]->thaw((int)$uri[2]) ) {
+    if( $obj = new $uri[1]((int)$uri[2]) ) {
       $response['status_code_header'] = 'HTTP/1.1 200 OK';
-      $response['body'] = $obj-> getJSON();
+      $response['body'] = json_encode( $obj-> getArrayCopy() );
     } else {
       return notFoundResponse();
     }
   } else {
     $result = [];
-    foreach($uri[1] as $id=>$obj)
+    foreach(new $uri[1] as $id=>$obj)
       $result[] = $obj-> getArrayCopy();
   
     $response['status_code_header'] = 'HTTP/1.1 200 OK';
@@ -61,8 +61,8 @@ function doPost($uri): array
 {
   $response = [];
   $input = json_decode(file_get_contents('php://input'), true);
-  $uri[1]-> setFromArray($input);
-  if( $id = $uri[1]-> freeze() ) {
+  $obj = $uri[1]::createFromArray($input);
+  if( $id = $obj-> freeze() ) {
     $response['status_code_header'] = 'HTTP/1.1 201 Created';
     $response['body'] = $id;
   } else {
@@ -75,11 +75,15 @@ function doPut($uri): array
 {
   $response = [];
 
-  if($uri[1]->thaw((int)$uri[2]) ) {
-    $input = json_decode(file_get_contents('php://input'), true);
-    $uri[1]-> setFromArray( $input );
+  if( !isset($uri[2]) ) {
+    return unprocessableEntityResponse();
+  }
 
-    if( $id = $uri[1]-> freeze() ) {
+  if($obj = new $uri[1]((int)$uri[2]) ) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $obj-> setFromArray( $input );
+
+    if( $id = $obj-> freeze() ) {
       $response['status_code_header'] = 'HTTP/1.1 201 Created';
       $response['body'] = $id;
 
@@ -88,7 +92,6 @@ function doPut($uri): array
     }
     return $response;
   }
-
   return notFoundResponse();
 }
 function doDelete($uri): array
@@ -97,7 +100,7 @@ function doDelete($uri): array
   if( !isset($uri[2]) ) {
     return notFoundResponse();
   }
-  if( $obj = $uri[1]->thaw((int)$uri[2]) ) {
+  if( $obj = new $uri[1]((int)$uri[2]) ) {
     $response['status_code_header'] = 'HTTP/1.1 200 OK';
     $response['body'] = $obj->delete();
     return $response;
@@ -110,5 +113,14 @@ function notFoundResponse()
 {
   $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
   $response['body'] = null;
+  return $response;
+}
+
+function unprocessableEntityResponse()
+{
+  $response['status_code_header'] = 'HTTP/1.1 422 Unprocessable Entity';
+  $response['body'] = json_encode([
+      'error' => 'Invalid input'
+  ]);
   return $response;
 }

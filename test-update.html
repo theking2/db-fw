@@ -19,7 +19,7 @@
       method: 'PUT',
       body: JSON.stringify({
         Name: document.getElementById('name').value,
-        groesse: document.getElementById('groese').value
+        groesse: parseFloat(document.getElementById('groese').value)
       })
     });
     if( !response.ok ) {

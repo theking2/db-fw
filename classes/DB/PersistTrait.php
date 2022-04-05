@@ -93,12 +93,12 @@ trait PersistTrait
 	 * @param  mixed $_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
-	private function bindFieldList( \PDOStatement $stmt, ?bool $dirty=false ): void
+	private function bindFieldList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): void
 	{
 		foreach( static::getFields( ) as $field=> $description ) {
 			// don't update primary key
 			if( $field === static::getPrimaryKey() ) continue;
-			if( $dirty or in_array( $field, $this-> _dirty ) ) {
+			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
 				$stmt->bindParam( ':'.$field, $this-> $field );
 			}
 		}
@@ -357,7 +357,7 @@ trait PersistTrait
 
 			// echo $query . '<br>';
 			$this-> insert_statement = Database::getConnection( )->prepare( $query );
-			$this-> bindFieldList( $this-> insert_statement, false );
+			$this-> bindFieldList( $this-> insert_statement, true );
 		}
 		return $this-> insert_statement;
 	}
@@ -378,7 +378,7 @@ trait PersistTrait
 
 		$result = Database::getConnection( )-> prepare( $query );
 		$result-> bindParam( ':ID', $this-> {$this-> getPrimaryKey( )} );		
-		$this-> bindFieldList( $result, true );
+		$this-> bindFieldList( $result, false );
 
 		return $result;
 	}
@@ -447,39 +447,43 @@ trait PersistTrait
     }
     return $array;
   }  
+	/* #endregion */
+
+	
+	public function __construct( $param = null )
+	{
+		if( !is_null( $param ) ) {
+			if( !\is_array( $param ) ) {
+				$this-> thaw( $param );
+			} else {
+				$this-> setFromArray($param);
+			}
+		} else {
+			$this-> _dirty = [];
+			$this-> {$this-> getPrimaryKey()} = 0;
+		}
+	}
   /**
    * createFromArray - Create or set from array
    *
    * @param  mixed $array
    * @return Persist
    */
-  public function setFromArray(array $array): \Persist\PersistInterface {
-    foreach($array as $field=>$value) {
-      $this->__set($field, $value);
-    }
-    return $this;
-  }
-  /**
-   * getJSON Get a json string from a database object
-   *
-   * @return void
-   */
-  public function getJSON() 
-  {
-    return json_encode($this->getArrayCopy(), JSON_FORCE_OBJECT);
-  }
-
-	/* #endregion */
-
-	
-	public function __construct( ?int $id = null )
-	{
-		if( !is_null( $id ) ) {
-			$this-> thaw( $id );
-		} else {
-			$this-> _dirty = [];
-			$this-> {$this-> getPrimaryKey()} = 0;
+  static function createFromArray(array $array): \Persist\PersistInterface {
+		$obj = new self();
+		$obj-> setFromArray( $array );
+    return $obj;
+  }	
+	/**
+	 * setFromArray
+	 *
+	 * @param  mixed $array
+	 * @return Persist\PersistInterface
+	 */
+	function setFromArray(array $array): \Persist\PersistInterface {
+		foreach($array as $field=>$value) {
+			$this->__set( $field, $value );
 		}
+		return $this;
 	}
-
 }
