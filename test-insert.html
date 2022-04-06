@@ -9,6 +9,7 @@
 <body>
   <input type="text" id="name">
   <input type="number" id="groese">
+  <input type="date" id="date">
   <button id="del">add</button>
 </body>
 <script>
@@ -18,12 +19,20 @@
       method: 'POST',
       body: JSON.stringify({
         Name: document.getElementById('name').value,
-        groesse : parseFloat(document.getElementById('groese').value)
+        groesse : parseFloat(document.getElementById('groese').value),
+        Date: document.getElementById('date').value
       })
     });
     if( !response.ok ) {
       const message = `Error: ${response.status}`;
+    } else if( 200 <= response.status && response.status <= 299 ) {
+      //success
+      result = await response.json();
+      message = `${response.statusText} ${result.id} `;
+    } else {
+      const message = `Error: ${response.statusText}`;
     }
+    alert(message);
   });
 </script>
 </html>

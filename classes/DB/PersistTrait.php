@@ -6,6 +6,7 @@ trait PersistTrait
   private ?\PDOStatement $current_statement = null;
 	private array $_dirty = [];
 	private array $_where = [];
+	private array $_insert_buffer = [];
 
 
 	/* #region helpers */
@@ -13,7 +14,7 @@ trait PersistTrait
 	public function isRecord():bool { return isset($this-> {static::getPrimaryKey()}) and $this-> {static::getPrimaryKey()} > 0; } 
 	
 	/** getKeyValue - retrieve current key */
-	public function getKeyValue(): ?int { return $this-> isRecord()? $this-> {static::getPrimaryKey()}: null; }
+	public function getKeyValue(): ?int { return $this-> isRecord()? (int)($this-> {static::getPrimaryKey()}): null; }
 
   /** _q - wrap fields in backticks */
   private static function _q(string $field):string { return '`'.$field.'`'; }
@@ -66,13 +67,13 @@ trait PersistTrait
 	 * @param  mixed $_dirty - if true, only dirty fields are returned
 	 * @return string
 	 */
-	private function getUpdateFieldList( ?bool $_dirty=false ): string
+	private function getUpdateFieldList( ?bool $ignore_dirty=false ): string
 	{
 		$result = [];
 		foreach( static::getFields( ) as $field=> $description ) {
 			// don't update primary key
 			if( $field === static::getPrimaryKey() ) continue;
-			if( $_dirty or in_array( $field, $this-> _dirty ) ) {
+			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
 				$result[] = "`$field` = :$field";
 			}
 		}
@@ -101,6 +102,26 @@ trait PersistTrait
 			if( $field === static::getPrimaryKey() ) continue;
 			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
 				$result = $result && $stmt->bindParam( ':'.$field, $this-> $field );
+			}
+		}
+		return $result;
+	}
+	/**
+	 * Create insert buffer as string[]
+	 *
+	 * @param  mixed $stmt
+	 * @param  mixed $_dirty - if true, only dirty fields are bound
+	 * @return void
+	 */
+	private function bindValueList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): bool
+	{
+		$result = true;
+		$this-> _insert_buffer = [];
+		foreach( static::getFields( ) as $field=> $description ) {
+			// don't update primary key
+			if( $field === static::getPrimaryKey() ) continue;
+			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
+				$result = $result && $stmt->bindValue( ':'.$field, 	$this-> _insert_buffer[] = $this-> getFieldString($field) );
 			}
 		}
 		return $result;
@@ -182,7 +203,7 @@ trait PersistTrait
 	{
 		try {
 
-			if( $this->getUpdateStatement()->execute( ) ) {
+			if( $this->getUpdateStatement() ->execute( ) ) {
 				$this-> _dirty = [];
 				return true;
 			}
@@ -193,7 +214,7 @@ trait PersistTrait
 
 		} catch( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this->update_statement, "Could not update {static::getTableName()}:%s"
+				$this-> update_statement, "Could not update {$this->getTableName()}:%s"
 			);
 		}
 	}
@@ -411,7 +432,7 @@ trait PersistTrait
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare insert statement for {$this->getTableName()}:%s" );
 			}
-			if( !$this-> bindFieldList( $this-> insert_statement, true ) ) {
+			if( !$this-> bindValueList( $this-> insert_statement, true ) ) {
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not bind insert statement for {$this->getTableName()}:%s" );
 			}
@@ -430,7 +451,7 @@ trait PersistTrait
 	{	
 		$query = sprintf( 'update %s set %s where %s = :ID'
 			, static::getTableName()
-			, $this-> getUpdateFieldList( true )
+			, $this-> getUpdateFieldList( false )
 			, static::getPrimaryKey( ) );
 
 		$result = Database::getConnection( )-> prepare( $query );
@@ -442,7 +463,7 @@ trait PersistTrait
 			throw DatabaseException::createStatementException(
 				Database::getConnection(), "Could not bind ID to update statement for {$this->getTableName()}:%s" );
 		}
-		if( !$this-> bindFieldList( $result, false ) ) {
+		if( !$this-> bindValueList( $result, false ) ) {
 			throw DatabaseException::createStatementException(
 				Database::getConnection(), "Could not bind update statement for {$this->getTableName()}:%s" );
 		}
@@ -507,7 +528,21 @@ trait PersistTrait
   }
   /* #endregion */
 
-	/* #region generic
+	/* #region generic */
+	
+	/**
+	 * Convert those fields that are not strings to strings
+	 *
+	 * @param  mixed $fieldName
+	 * @return void
+	 */
+	private function getFieldString( string $fieldName )
+	{
+    switch($this-> getFields()[$fieldName][0]) {
+      default : return isset($this-> $fieldName) ? $this-> $fieldName : '';
+      case '\DateTime' : return isset($this-> $fieldName) ? ($this-> $fieldName)-> format('Y-m-d') : '0000-00-00';
+    }
+	}
 	/**
    * getArrayCopy - Returns an array copy of the object
    *
@@ -517,7 +552,7 @@ trait PersistTrait
   {
     $array = [];
     foreach( array_keys( $this->getFields() ) as $field ) {
-      $array[$field] = (string)$this-> $field;
+      $array[$field] = $this-> getFieldString( $field );
     }
     return $array;
   }  
