@@ -24,12 +24,16 @@ final class Database
 		$db_options = 
 			[ \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
 			, \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_BOUND
-			, \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+			, \PDO::ATTR_ERRMODE => \PDO::ERRMODE_SILENT
 			, \PDO::ATTR_PERSISTENT => true
 			, \PDO::ATTR_EMULATE_PREPARES => false
 			];
 
-		$this-> connection =  new \PDO( $dsn, $db_user, $db_pass, $db_options );
+		try {
+			$this-> connection =  new \PDO( $dsn, $db_user, $db_pass, $db_options );
+		} catch( \PDOException $e ) {
+			throw new DatabaseException( DatabaseException::ERR_CONNECTION, null, $e-> getMessage() );
+		}
 	}
 
 	/**
