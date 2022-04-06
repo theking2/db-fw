@@ -93,15 +93,17 @@ trait PersistTrait
 	 * @param  mixed $_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
-	private function bindFieldList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): void
+	private function bindFieldList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): bool
 	{
+		$result = true;
 		foreach( static::getFields( ) as $field=> $description ) {
 			// don't update primary key
 			if( $field === static::getPrimaryKey() ) continue;
 			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
-				$stmt->bindParam( ':'.$field, $this-> $field );
+				$result &= $stmt->bindParam( ':'.$field, $this-> $field );
 			}
 		}
+		return $result;
 	}
 	/* #endregion helpers */
 	
@@ -162,14 +164,14 @@ trait PersistTrait
 				return true;
 			}
 			else {
-				$errorInfo = $this->insert_statement->errorInfo( );
-				$message = sprintf( 'Could not save "%s". (%s)', static::getTableName(), $errorInfo[2] );
-				throw new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
-				return false;
+				throw DatabaseException::createExecutionException(
+					$this->insert_statement, "Could not insert in {self::getTableName()}:%s" );
 			}
-		} catch( \Exception $e ) {
-			error_log( $e-> getMessage() );
-			return false;
+
+		} catch( \PDOException $e ) {
+			throw DatabaseException::createExecutionException(
+				$this->insert_statement, "Could not insert in {self::getTableName()}:%s)"
+			);
 		}
 	}
 	/**
@@ -179,17 +181,20 @@ trait PersistTrait
 	protected function update( ):bool
 	{
 		try {
+
 			if( $this->getUpdateStatement()->execute( ) ) {
 				$this-> _dirty = [];
 				return true;
 			}
-			$errorInfo = $this->getUpdateStatement()->errorInfo( );
-			$message = sprintf( 'Could not save %s. (%s):', static::getTableName(), $errorInfo[2], $this-> update_statement-> debugDumpParams() );
-			throw new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
 
-		} catch( \Exception $e ) {
-			error_log( $e-> getMessage() );
-			return false;
+			throw DatabaseException::createExecutionException(
+				$this-> update_statement, "Could not update {self::getTableName()}:%s"
+			);
+
+		} catch( \PDOException $e ) {
+			throw DatabaseException::createExecutionException(
+				$this->update_statement, "Could not update {static::getTableName()}:%s"
+			);
 		}
 	}
 		/**
@@ -199,14 +204,21 @@ trait PersistTrait
 	 */
 	public function delete( )
 	{
-		if( $this->getDeleteStatement()-> execute( ) ) {
-			$this-> _dirty = [];
-			$this->{$this-> getPrimaryKey()} = 0;
-		}
-		else {
-			$errorInfo = $this->getDeleteStatement()-> errorInfo( );
-			$message = sprintf( 'Could not delete %s, (%s)', $this->getTableName(), $errorInfo[2] );
-			throw new \Exception( $message );
+		try {
+
+			if( $this->getDeleteStatement()-> execute( ) ) {
+				$this-> _dirty = [];
+				$this->{$this-> getPrimaryKey()} = 0;
+				return true;
+			}
+			throw DatabaseException::createExecutionException(
+				$this->getDeleteStatement(), "Could not delete from {self::getTableName()}"
+			);
+
+		} catch( \PDOException $e ) {
+			throw DatabaseException::createExecutionException(
+				$this-> delete_statement, "Could not delete from {self->getTableName()}:%s"
+			);
 		}
 	}
 	/* #endregion CRUD */
@@ -218,25 +230,56 @@ trait PersistTrait
    * @param  mixed $order
    * @return void
    */
-  function findFirst(?string $order=null) {
-    $query = sprintf( 'select %s from %s', self::getSelectFields(true), $this->getTableName() );
+  function findFirst (?string $order=null ) {
+    $query = sprintf(
+			'select %s from %s',
+			self::getSelectFields(true),
+			$this->getTableName()
+		);
     $query .= ' where ' . $this-> getWhere();
     if( !is_null($order) && is_array($order) ) {
       $query .= sprintf(' order by ');
       $query .= static::wrapFieldArray($order);
     }
-    $stmt = Database::getConnection()-> prepare($query);
-    $this-> bindWhere($stmt);
-    $stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
+		try {
+			if( !$stmt = Database::getConnection()-> prepare($query) ) {
+				throw DatabaseException::createStatementException(
+					Database::getConnection(), "Could not prepare statement for {self::getTableName()}:%s"
+				);
+			}
+			if( !$stmt-> execute( ) ) {
+				throw DatabaseException::createExecutionException(
+					$stmt, "Could not find first in {self::getTableName()}:%s"
+				);
+			}
+			if( !$this-> bindWhere($stmt) ) {
+				throw DatabaseException::createExecutionException(
+					$stmt, "Could not bind where in {self::getTableName()}:%s"
+				);
+			}
+			$stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
-    if( !$stmt-> execute() ) throw new \Exception($stmt->errorInfo()[2]);
-    if( $stmt-> fetch() ) {
-      $this-> current_statement = $stmt;
-      $this-> valid = true;
-			$this-> _dirty = [];
-    } else {
-      $this-> valid = false;
-    }
+			if( !$stmt-> execute() ) {
+				throw DatabaseException::createExecutionException(
+					$stmt, "Could not execute statement for {self::getTableName()}:%s"
+				);
+			}
+			if( $stmt-> fetch() ) {
+				$this-> current_statement = $stmt;
+				$this-> valid = true;
+				$this-> _dirty = [];
+			} else {
+				$this-> valid = false;
+			}
+		} catch( \PDOException $e ) {
+			$errorInfo = $stmt-> errorInfo();
+			$message = sprintf(
+				'Could not find %s, (%s)',
+				$this->getTableName(),
+				$errorInfo[2]
+			);
+			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
+		}
   }
   /**
 	 * function findNext navigate to next record
@@ -244,14 +287,20 @@ trait PersistTrait
 	 */
 	public function findNext( )
 	{
-    if($this->current_statement->fetch()) {
-		  $this-> valid = true; 
-			$this-> _dirty = [];
-      return true;
-    } else {
-      $this-> valid = false;
-      return false;
-    }
+		try {
+			if($this->current_statement->fetch()) {
+				$this-> valid = true; 
+				$this-> _dirty = [];
+				return true;
+			} else {
+				$this-> valid = false;
+				return false;
+			}
+		} catch( \PDOException $e ) {
+			throw DatabaseException::createExecutionException(
+				$this->current_statement, "Could not find next in {self::getTableName()}:%s"
+			);
+		}
   } 
   /* #endregion Traversal */
 
@@ -321,18 +370,20 @@ trait PersistTrait
 	* Bind the set values to the statement
 	* @param PDOStatement $stmt - 
 	*/
-	private function bindWhere( $stmt )
+	private function bindWhere( $stmt ): bool
 	{
+		$result = true;
 		foreach( $this-> _where as $fieldname => $filter ) {
 			if(substr($filter,0,1)==='U' ) {
 				$in_values = explode( ',', substr($filter,1) );
 				for( $i=0; $i < count($in_values); $i++ ) {
-					$stmt->bindValue( ":{$fieldname}_{$i}", $in_values[$i] );
+					$result &= $stmt->bindValue( ":{$fieldname}_{$i}", $in_values[$i] );
 				}
 			} else {
-				$stmt->bindValue( ":$fieldname", substr($filter,1) );
+				$result &= $stmt->bindValue( ":$fieldname", substr($filter,1) );
 			}
 		}
+		return $result;
 	}
 
   /* #endregion */
@@ -355,14 +406,20 @@ trait PersistTrait
 				, static::getFieldPlaceholders( false )
 				);
 
-			// echo $query . '<br>';
 			$this-> insert_statement = Database::getConnection( )->prepare( $query );
-			$this-> bindFieldList( $this-> insert_statement, true );
+			if( !$this-> insert_statement ) {
+				throw DatabaseException::createStatementException(
+					Database::getConnection(), "Could not prepare insert statement for {$this->getTableName()}:%s" );
+			}
+			if( !$this-> bindFieldList( $this-> insert_statement, true ) ) {
+				throw DatabaseException::createStatementException(
+					Database::getConnection(), "Could not bind insert statement for {$this->getTableName()}:%s" );
+			}
 		}
 		return $this-> insert_statement;
 	}
 	/** @var \PDOStatement $update_statement bind ID param to PK; bind fields to */
-	private $update_statement = null;
+	private ?\PDOStatement $update_statement = null;
 	/**
 	 * Create Statement, bind to object members and save
 	 * return cached select statement
@@ -377,13 +434,23 @@ trait PersistTrait
 			, static::getPrimaryKey( ) );
 
 		$result = Database::getConnection( )-> prepare( $query );
-		$result-> bindParam( ':ID', $this-> {$this-> getPrimaryKey( )} );		
-		$this-> bindFieldList( $result, false );
+		if( !$result ) {
+			throw DatabaseException::createStatementException(
+				Database::getConnection(), "Could not prepare update statement for {$this->getTableName()}:%s" );
+		}
+		if( !$result-> bindParam( ':ID', $this-> {$this-> getPrimaryKey( )} ) ) {
+			throw DatabaseException::createStatementException(
+				Database::getConnection(), "Could not bind ID to update statement for {$this->getTableName()}:%s" );
+		}
+		if( !$this-> bindFieldList( $result, false ) ) {
+			throw DatabaseException::createStatementException(
+				Database::getConnection(), "Could not bind update statement for {$this->getTableName()}:%s" );
+		}
 
 		return $result;
 	}
 	/** @var \PDOStatement $delete_statement bind ID param to PK */
-	private $delete_statement = null;	
+	private ?\PDOStatement $delete_statement = null;	
 	/**
 	 * Create Statement, bind to object members and save
 	 * return cached select statement
@@ -398,7 +465,14 @@ trait PersistTrait
 				, static::getPrimaryKey( )
 			);
 			$this->delete_statement = Database::getConnection( )->prepare( $query );
-			$this->delete_statement->bindParam( ':ID', $this->{$this-> getPrimaryKey()} );
+			if( !$this->delete_statement ) {
+				throw DatabaseException::createStatementException(
+					Database::getConnection(), "Could not prepare delete statement {$this->getTableName()}:%s" );
+			}
+			if( !$this->delete_statement->bindParam( ':ID', $this->{$this-> getPrimaryKey()} ) ) {
+				throw DatabaseException::createStatementException(
+					Database::getConnection(), "Could not bind ID to delete statement {$this->getTableName()}:%s" );
+			}
 		}
 		return $this->delete_statement;
 	}

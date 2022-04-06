@@ -39,10 +39,26 @@ class DatabaseException extends \Exception {
 			parent::__construct( self::$messageEN[$code], $code, $previous );
 		}
 	}
-		
 	
+	static function createStatementException( \PDO $connection, ?string $message = NULL ) {
+		$errorInfo = $connection-> errorInfo();
+		$message = sprintf(self::$messageEN[self::ERR_STATEMENT], $message ? sprintf($message, $errorInfo[2]) : $errorInfo[2]);
+		return new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
+	}
 
-	final function getMessageLang(string $lang): string
+	static function createExecutionException( \PDOStatement $stmt, ?string $message = NULL ) {
+		$errorInfo = $stmt->errorInfo();
+		$message = sprintf(self::$messageEN[self::ERR_EXCECUTE], $message ? sprintf($message, $errorInfo[2]) : $errorInfo[2]);
+		return new DatabaseException( DatabaseException::ERR_EXCECUTE, NULL, $message );
+	}
+	
+	/**
+	 * getMessageLang - Get message for specified language
+	 *
+	 * @param  string $lang
+	 * @return string
+	 */
+	final function getMessageLang(string $lang = 'EN'): string
 	{
 		return self::$messageEN[$this->code];
 	}
