@@ -28,15 +28,21 @@ include '.\inc\util.php';
 // }
 
 
-for( $i=100000; $i>0; $i-- ) {
-  $obj = new \NeueMedien\Test();
-  $obj-> Name = chr(rand(40,90));
-  $obj-> groesse = 1.60+rand(0,30)/100;
-  $obj-> freeze();
-}
+// for( $i=100000; $i>0; $i-- ) {
+//   $obj = new \NeueMedien\Test();
+//   $obj-> Name = chr(rand(40,90));
+//   $obj-> groesse = 1.60+rand(0,30)/100;
+//   $obj-> freeze();
+// }
 
-foreach( new \NeueMedien\test() as $obj ) {
-  $obj-> delete();
+$obj = new \NeueMedien\Test();
+$obj-> setWhere( [ 'Name' => "<D" ]);
+foreach($obj as $test ) {
+  echo "
+  <pre>
+  {$test-> Name}
+  {$test-> groesse}
+  </pre>";
 }
   
 

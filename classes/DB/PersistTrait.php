@@ -268,16 +268,12 @@ trait PersistTrait
 					Database::getConnection(), "Could not prepare statement for {$this->getTableName()}:%s"
 				);
 			}
-			if( !$stmt-> execute( ) ) {
-				throw DatabaseException::createExecutionException(
-					$stmt, "Could not find first in {$this->getTableName()}:%s"
-				);
-			}
 			if( !$this-> bindWhere($stmt) ) {
 				throw DatabaseException::createExecutionException(
 					$stmt, "Could not bind where in {$this->getTableName()}:%s"
 				);
 			}
+
 			$stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
 			if( !$stmt-> execute() ) {
