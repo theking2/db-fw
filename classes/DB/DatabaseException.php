@@ -14,14 +14,13 @@ namespace db;
  */
 class DatabaseException extends \Exception {
 	const ERROR_START = 0x2000; // Vieww errors start here
-	const ERR_STATEMENT = ERROR_START+0;
-	const ERR_NOT_RECORD = ERROR_START+1;
-	const ERR_NORECORDS_FOUND = ERROR_START+2;
-
-	private static $messageEN = array
-	(	DatabaseException::ERR_STATEMENT=>       'Statement exec error: %s'
-	,	DatabaseException::ERR_NOT_RECORD=>      '$record is not \db\Record'
-	,	DatabaseException::ERR_NORECORDS_FOUND=> 'no records found'
+	const ERR_CONNECTION = DatabaseException::ERROR_START+0;
+	const ERR_STATEMENT = DatabaseException::ERROR_START+1;
+	const ERR_EXCECUTE = DatabaseException::ERROR_START+2;
+	private static $messageEN = array(
+		DatabaseException::ERR_CONNECTION => "Could not connect to database",
+		DatabaseException::ERR_STATEMENT => 'Statement error: %s',
+		DatabaseException::ERR_EXCECUTE => 'Statement execute error: %s'
 	);
 			
 	/**
