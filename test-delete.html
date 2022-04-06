@@ -13,10 +13,18 @@
 <script>
   const id = document.getElementById('id');
   const del = document.getElementById('del').addEventListener('click', async ev=>{
+    let message = '';
     const response = await fetch(`/test/${id.value}`, { method: 'DELETE' });
     if( !response.ok ) {
-      const message = `Error: ${response.status}`;
+      message = `Error: ${response.status}`;
+    } else if( 200 <= response.status && response.status <= 299 ) {
+      //success
+      result = await response.json();
+      message = `${response.statusText} ${result.id} ${result.result}`;
+    } else {
+      message = `Error: ${response.status}`;
     }
+    alert(message);
   });
 </script>
 </html>

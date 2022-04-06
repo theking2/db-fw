@@ -10,7 +10,8 @@ final class test implements \Persist\PersistInterface, \Iterator
 
 	private int       $test_ID;
 	private string    $Name;
-	private float     $groesse;
+	private float       $groesse;
+	private \DateTime $Date;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'test_ID'; }
@@ -19,7 +20,8 @@ final class test implements \Persist\PersistInterface, \Iterator
 		return [
 			'test_ID' => ['int', 10 ],
 			'Name' => ['string', 255 ],
-			'groesse' => ['float', 0 ],
+			'groesse' => ['float', 11 ],
+			'Date' => ['\DateTime', 0 ],
 		];
 	}
 }
