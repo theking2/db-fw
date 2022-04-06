@@ -41,15 +41,15 @@ class DatabaseException extends \Exception {
 	}
 	
 	static function createStatementException( \PDO $connection, ?string $message = NULL ) {
-		$errorInfo = $connection-> errorInfo();
-		$message = sprintf(self::$messageEN[self::ERR_STATEMENT], $message ? sprintf($message, $errorInfo[2]) : $errorInfo[2]);
-		return new DatabaseException( DatabaseException::ERR_STATEMENT, NULL, $message );
+		$errorInfo = $connection->errorInfo();
+		return new DatabaseException( DatabaseException::ERR_STATEMENT, NULL,
+			$message ? sprintf( $message, errorInfo[2] ) : $errorInfo[2] );
 	}
 
 	static function createExecutionException( \PDOStatement $stmt, ?string $message = NULL ) {
 		$errorInfo = $stmt->errorInfo();
-		$message = sprintf(self::$messageEN[self::ERR_EXCECUTE], $message ? sprintf($message, $errorInfo[2]) : $errorInfo[2]);
-		return new DatabaseException( DatabaseException::ERR_EXCECUTE, NULL, $message );
+		return new DatabaseException( DatabaseException::ERR_EXCECUTE, NULL,
+			$message ? sprintf( $message, errorInfo[2] ) : $errorInfo[2] );
 	}
 	
 	/**
