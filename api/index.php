@@ -59,14 +59,14 @@ function doGet(array $uri): array
   if( isset($uri[2]) ) {
     if( $obj = new $uri[1]((int)$uri[2]) ) {
       $response['status_code_header'] = 'HTTP/1.1 200 OK';
-      $response['body'] = json_encode( $obj-> getArrayCopy() );
+      $response['body'] = $obj-> getJson();
     } else {
       return notFoundResponse();
     }
   } else {
     $result = [];
     foreach(new $uri[1] as $id=>$obj)
-      $result[] = $obj-> getArrayCopy();
+      $result[$id] = $obj-> getArrayCopy();
   
     $response['status_code_header'] = 'HTTP/1.1 200 OK';
     $response['body'] = json_encode($result);
@@ -150,23 +150,26 @@ function doDelete(array $uri): array
 /**
  * Create a 404 response
  *
- * @return void
+ * @return array
  */
 function notFoundResponse(): array
 {
+
   $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
   $response['body'] = null;
+
   return $response;
 }
 
 /**
  * Create a 422 response
  *
- * @return void
+ * @return array
  */
 function unprocessableEntityResponse(): array
 {
   $response['status_code_header'] = 'HTTP/1.1 422 Unprocessable Entity';
   $response['body'] = json_encode([ 'error' => 'Invalid input' ]);
+  
   return $response;
 }
