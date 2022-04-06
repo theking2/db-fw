@@ -115,7 +115,7 @@ trait PersistTrait
 	 */
 	public function freeze( ):bool
 	{
-		if( $this-> {$this->getPrimaryKey()} ) {
+		if( $this-> isRecord() ) {
 			return $this->update();
 		}
 		return $this->insert();
