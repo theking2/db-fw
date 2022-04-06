@@ -579,7 +579,7 @@ trait PersistTrait
    * @return Persist
    */
   static function createFromArray(array $array): \Persist\PersistInterface {
-		$obj = new self();
+		$obj = new static();
 		$obj-> setFromArray( $array );
     return $obj;
   }	
@@ -594,5 +594,23 @@ trait PersistTrait
 			$this->__set( $field, $value );
 		}
 		return $this;
+	}	
+	/**
+	 * Returns the json representation of the object
+	 *
+	 * @return string
+	 */
+	public function getJson(): string {
+		return json_encode( $this-> getArrayCopy() );
+	}	
+	/**
+	 * Create a new object from json
+	 *
+	 * @param  string $json
+	 * @return \Persist\PersistInterface
+	 */
+	public static function createFromJson( string $json ): \Persist\PersistInterface {
+		return static::createFromArray( json_decode( $json, true ) );
 	}
+
 }
