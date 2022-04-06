@@ -165,12 +165,12 @@ trait PersistTrait
 			}
 			else {
 				throw DatabaseException::createExecutionException(
-					$this->insert_statement, "Could not insert in {self::getTableName()}:%s" );
+					$this->insert_statement, "Could not insert in {$this->getTableName()}:%s" );
 			}
 
 		} catch( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this->insert_statement, "Could not insert in {self::getTableName()}:%s)"
+				$this->insert_statement, "Could not insert in {$this->getTableName()}:%s)"
 			);
 		}
 	}
@@ -188,7 +188,7 @@ trait PersistTrait
 			}
 
 			throw DatabaseException::createExecutionException(
-				$this-> update_statement, "Could not update {self::getTableName()}:%s"
+				$this-> update_statement, "Could not update {$this->getTableName()}:%s"
 			);
 
 		} catch( \PDOException $e ) {
@@ -212,7 +212,7 @@ trait PersistTrait
 				return true;
 			}
 			throw DatabaseException::createExecutionException(
-				$this->getDeleteStatement(), "Could not delete from {self::getTableName()}"
+				$this->getDeleteStatement(), "Could not delete from {$this->getTableName()}"
 			);
 
 		} catch( \PDOException $e ) {
@@ -244,24 +244,24 @@ trait PersistTrait
 		try {
 			if( !$stmt = Database::getConnection()-> prepare($query) ) {
 				throw DatabaseException::createStatementException(
-					Database::getConnection(), "Could not prepare statement for {self::getTableName()}:%s"
+					Database::getConnection(), "Could not prepare statement for {$this->getTableName()}:%s"
 				);
 			}
 			if( !$stmt-> execute( ) ) {
 				throw DatabaseException::createExecutionException(
-					$stmt, "Could not find first in {self::getTableName()}:%s"
+					$stmt, "Could not find first in {$this->getTableName()}:%s"
 				);
 			}
 			if( !$this-> bindWhere($stmt) ) {
 				throw DatabaseException::createExecutionException(
-					$stmt, "Could not bind where in {self::getTableName()}:%s"
+					$stmt, "Could not bind where in {$this->getTableName()}:%s"
 				);
 			}
 			$stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
 			if( !$stmt-> execute() ) {
 				throw DatabaseException::createExecutionException(
-					$stmt, "Could not execute statement for {self::getTableName()}:%s"
+					$stmt, "Could not execute statement for {$this->getTableName()}:%s"
 				);
 			}
 			if( $stmt-> fetch() ) {
@@ -298,7 +298,7 @@ trait PersistTrait
 			}
 		} catch( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this->current_statement, "Could not find next in {self::getTableName()}:%s"
+				$this->current_statement, "Could not find next in {$this->getTableName()}:%s"
 			);
 		}
   } 
