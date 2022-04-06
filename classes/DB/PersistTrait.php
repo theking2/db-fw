@@ -100,7 +100,7 @@ trait PersistTrait
 			// don't update primary key
 			if( $field === static::getPrimaryKey() ) continue;
 			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
-				$result &= $stmt->bindParam( ':'.$field, $this-> $field );
+				$result = $result && $stmt->bindParam( ':'.$field, $this-> $field );
 			}
 		}
 		return $result;
@@ -377,10 +377,10 @@ trait PersistTrait
 			if(substr($filter,0,1)==='U' ) {
 				$in_values = explode( ',', substr($filter,1) );
 				for( $i=0; $i < count($in_values); $i++ ) {
-					$result &= $stmt->bindValue( ":{$fieldname}_{$i}", $in_values[$i] );
+					$result = $result && $stmt->bindValue( ":{$fieldname}_{$i}", $in_values[$i] );
 				}
 			} else {
-				$result &= $stmt->bindValue( ":$fieldname", substr($filter,1) );
+				$result = $result && $stmt->bindValue( ":$fieldname", substr($filter,1) );
 			}
 		}
 		return $result;
