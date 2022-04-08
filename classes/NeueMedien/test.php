@@ -1,19 +1,21 @@
 <?php declare(strict_types=1);
 namespace NeueMedien;
 
-/*
+/**
  * test – Persistant DB object
  */
-final class test implements \Persist\PersistInterface, \Iterator
+final class test
+	extends \Persist\Base
+	implements \Persist\IPersist, \Iterator
 {
-	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
+	use \Persist\IteratorTrait, \DB\DBPersistTrait;
 
-	private ?int       $test_ID;
-	private ?string    $Name;
-	private ?float     $groesse;
-	private ?\DateTime $Date;
+	protected ?int       $test_ID;
+	protected ?string    $Name;
+	protected ?float     $groesse;
+	protected ?\DateTime $Date;
 
-// Persist functions
+	// Persist functions
 	static public function getPrimaryKey():string { return 'test_ID'; }
 	static public function getTableName():string { return '`test`'; }
 	static public function getFields():array {

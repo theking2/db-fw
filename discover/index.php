@@ -58,20 +58,22 @@ while( $table_stat->fetch() ) {
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
   fwrite( $fh, "<?php declare(strict_types=1);\n" );
   fprintf( $fh, "namespace %s;\n\n", _NAMESPACE );
-  fprintf( $fh, "/*\n * %s – Persistant DB object\n */\n", $table_name );
-  fprintf( $fh, "final class %s implements \\Persist\\PersistInterface, \\Iterator\n{\n", $table_name );
-  fwrite( $fh, "\tuse \\DB\\PersistTrait,\\Persist\PersistIteratorTrait;\n\n" );
+  fprintf( $fh, "/**\n * %s – Persistant DB object\n */\n", $table_name );
+  fprintf( $fh, "final class %s\n\textends \\Persist\\Base\n", $table_name );
+  fwrite( $fh, "\timplements \\Persist\\IPersist, \\Iterator\n{\n", );
+  fwrite( $fh, "\tuse \\Persist\IteratorTrait, \\DB\\DBPersistTrait;\n\n" );
 
   // Set the datatype for Date and DateTime to PHP \DateTime
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\tprivate ?%-10s\$%s;\n",
+    fprintf( $fh, "\tprotected ?%-10s\$%s;\n",
       $fieldDescription[0]==='Date'
         ? '\DateTime'
         : $fieldDescription[0],
       $fieldName
     );
   };
-  fwrite( $fh, "\n// Persist functions\n" );
+  
+  fwrite( $fh, "\n\t// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
   fprintf( $fh, "\tstatic public function getTableName():string { return '`%s`'; }\n", $table_name );
   fwrite( $fh, "\tstatic public function getFields():array {\n" );

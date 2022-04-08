@@ -3,11 +3,11 @@
 namespace Persist;
 
 /**
- * Interface PersistInterface
+ * Interface \Persist\Interface
  * @package Persist
  */
 
-interface PersistInterface
+interface IPersist
 {
   public static function getPrimaryKey(): string;
   public static function getFields(): array;
@@ -23,7 +23,7 @@ interface PersistInterface
    */
   public function getKeyValue(): ?int;  
   /**
-   * Get all fields of the object as an array
+   * Get the object values as array
    *
    * @return array
    */
@@ -32,11 +32,17 @@ interface PersistInterface
    * Create a new object from an array
    *
    * @param  mixed $data
-   * @return PersistInterface
+   * @return \Persist\Base
    */
-  public static function createFromArray(array $data): PersistInterface;
-  
-  /**
+  public static function createFromArray(array $data): Base;
+	/**
+	 * setFromArray
+	 *
+	 * @param  mixed $array
+	 * @return Base
+	 */
+	public function setFromArray(array $array): Base;
+/**
    * Get the object as a JSON string
    *
    * @return string
@@ -46,7 +52,7 @@ interface PersistInterface
    * Create a new object from a JSON string
    *
    * @param  mixed $json
-   * @return PersistInterface
+   * @return \Persist\Base
    */
-  public static function createFromJson(string $json): PersistInterface;
+  public static function createFromJson(string $json): Base;
 }
