@@ -158,14 +158,22 @@ trait PersistTrait
       , static::getPrimaryKey( )
       );
     $stmt = Database::getConnection()->prepare($query);
+		if( !$stmt ) {
+			throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this-> getTableName()}:%s)" );
+		}
     $stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
-    if( !$stmt-> execute([':ID'=>$id]) ) throw new \Exception($stmt->errorInfo()[2]);
+    if( !$stmt-> execute([':ID'=>$id]) ) {
+			throw DatabaseException::createStatementException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
+		}
+
 		if( $stmt-> fetch( \PDO::FETCH_INTO ) ) {
 			$this-> {$this->getPrimaryKey()} = $id;
 			$this-> _dirty = [];
 			return $this;
 		} else {
+			$this-> {$this->getPrimaryKey()} = 0;
+			$this-> _dirty = [];
 			return null;
 		}
   }
@@ -514,7 +522,10 @@ trait PersistTrait
   public function __set(string $field, $value):void {
     switch($this-> getFields()[$field][0]) {
       default : $this-> $field = $value; break;
-      case '\DateTime' : $this-> $field = \DateTime::createFromFormat('Y-m-d', $value); break;
+      case '\DateTime' : $this-> $field = (function($value) {
+					if( $d=\DateTime::createFromFormat('Y-m-d', $value) ) return $d;
+					return null;
+				}) ($value); break;
       case 'int' : $this-> $field = (int)$value; break;
       case 'float' : $this-> $field = (float)$value; break;
       case 'bool' : $this-> $field = (bool)$value; break;

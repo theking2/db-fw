@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Insert</title>
+</head>
+
+<body>
+  <p id="message"></p>
+  <input type="text" id="name">
+  <input type="number" id="groese">
+  <input type="date" id="date"><br>
+  <button id="add">insert</button><br>
+
+  <input type="number" id="id"><br>
+  <button id="del">delete</button>
+  <button id="update">update</button>
+
+</body>
+<script>
+  document.addEventListener('DOMContentLoaded', e => {
+    const id = document.getElementById('id');
+    let message = document.getElementById('message');"";
+
+    document.getElementById('add').addEventListener('click', async ev => {
+      const response = await fetch(`/test`, {
+        method: 'POST',
+        body: JSON.stringify({
+          Name: document.getElementById('name').value,
+          groesse: parseFloat(document.getElementById('groese').value),
+          Date: document.getElementById('date').value
+        })
+      });
+      if (!response.ok) {
+        message.textContent = `Error: ${response.status}`;
+      } else if (200 <= response.status && response.status <= 299) {
+        //success
+        result = await response.json();
+        message.textContent = `${response.statusText} ${result.id} `;
+      } else {
+        message.textContent = `Error: ${response.statusText}`;
+      }
+    });
+
+    document.getElementById('update').addEventListener('click', async ev => {
+      const response = await fetch(`/test/${id.value}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          Name: document.getElementById('name').value,
+          groesse: parseFloat(document.getElementById('groese').value),
+          Date: document.getElementById('date').value
+        })
+      });
+
+      if (!response.ok) {
+        message.textContent = `Error: ${response.status}`;
+      } else if (200 <= response.status && response.status <= 299) {
+        //success
+        result = await response.json();
+        message.textContent = `${response.statusText} ${result.id} ${result.result}`;
+      } else {
+        message.textContent = `Error: ${response.status}`;
+      }
+    });
+
+    document.getElementById('del').addEventListener('click', async ev => {
+      const response = await fetch(`/test/${id.value}`, { method: 'DELETE' });
+      if (!response.ok) {
+        message.textContent = `Error: ${response.status}`;
+      } else if (200 <= response.status && response.status <= 299) {
+        //success
+        result = await response.json();
+        message.textContent = `${response.statusText} ${result.id} ${result.result}`;
+      } else {
+        message.textContent = `Error: ${response.status}`;
+      }
+    });
+
+  })
+
+</script>
+
+</html>
