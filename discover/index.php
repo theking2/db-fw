@@ -66,7 +66,7 @@ while( $table_stat->fetch() ) {
   // };
   // fwrite( $fh, "\t*/\n" );
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\tprivate %s\$%s;\n", str_pad($fieldDescription[0],10) , $fieldName );
+    fprintf( $fh, "\tprivate ?%-10s\$%s;\n", $fieldDescription[0], $fieldName );
   };
   fwrite( $fh, "\n// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
@@ -74,7 +74,7 @@ while( $table_stat->fetch() ) {
   fwrite( $fh, "\tstatic public function getFields():array {\n" );
   fwrite( $fh, "\t\treturn [\n" );
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\t\t\t'%s' => ['%s', %d ],\n", $fieldName, $fieldDescription[0], $fieldDescription[1] );
+    fprintf( $fh, "\t\t\t%-20s => ['%s', %d ],\n", "'$fieldName'", $fieldDescription[0], $fieldDescription[1] );
   };
   fwrite( $fh, "\t\t];\n\t}\n}" );
   fclose( $fh );
