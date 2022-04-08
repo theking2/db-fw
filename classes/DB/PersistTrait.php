@@ -520,18 +520,16 @@ trait PersistTrait
    * @return void
    */
   public function __set(string $field, $value):void {
+		// Prepare for incorrect dates.
+		$convert_date = function( $value, $format ) {
+			if ($d = \DateTime::createFromFormat( $format, $value ) )
+				return $d; 
+			return null;
+		};
     switch($this-> getFields()[$field][0]) {
       default : $this-> $field = $value; break;
-      case '\DateTime' : $this-> $field = (function($value) {
-				if ($d = \DateTime::createFromFormat('Y-m-d H:i:s', $value) )
-					return $d; 
-				return null;
-			})($value); break;
-      case 'Date' : $this-> $field = (function($value) {
-				if ($d = \DateTime::createFromFormat('Y-m-d', $value) )
-					return $d; 
-				return null;
-			})($value); break;
+      case '\DateTime' : $this-> $field = $convert_date($value, 'Y-m-d H:i:s'); break;
+      case 'Date' : $this-> $field = $convert_date($value, 'Y-m-d'); break;
       case 'int' : $this-> $field = (int)$value; break;
       case 'float' : $this-> $field = (float)$value; break;
       case 'bool' : $this-> $field = (bool)$value; break;

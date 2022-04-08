@@ -34,6 +34,9 @@ include '.\inc\util.php';
 //   $obj-> groesse = 1.60+rand(0,30)/100;
 //   $obj-> freeze();
 // }
+$s = "0000-0-0 00:00:00";
+$d = \DateTime::createFromFormat('Y-m-d H:i:s',$s);
+echo $d-> format("d.m.Y H:i:s");
 
 $obj = new \NeueMedien\Test();
 $obj-> setWhere( [ 'Name' => "<D" ]);
@@ -42,7 +45,7 @@ foreach($obj as $test ) {
   <pre>
   {$test-> Name}
   {$test-> groesse}
-  {$test-> Date}
+  {$test-> Date-> format('d.m.Y')}
   </pre>";
 }
   
