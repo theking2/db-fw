@@ -4,7 +4,7 @@ namespace NeueMedien;
 /*
  * test – Persistant DB object
  */
-final class test implements \Persist\PersistInterface, \Iterator
+final class test extends \Persist\Persist implements \Iterator
 {
 	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
 

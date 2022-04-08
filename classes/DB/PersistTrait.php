@@ -523,9 +523,15 @@ trait PersistTrait
     switch($this-> getFields()[$field][0]) {
       default : $this-> $field = $value; break;
       case '\DateTime' : $this-> $field = (function($value) {
-					if( $d=\DateTime::createFromFormat('Y-m-d', $value) ) return $d;
-					return null;
-				}) ($value); break;
+				if ($d = \DateTime::createFromFormat('Y-m-d H:i:s', $value) )
+					return $d; 
+				return null;
+			})($value); break;
+      case 'Date' : $this-> $field = (function($value) {
+				if ($d = \DateTime::createFromFormat('Y-m-d', $value) )
+					return $d; 
+				return null;
+			})($value); break;
       case 'int' : $this-> $field = (int)$value; break;
       case 'float' : $this-> $field = (float)$value; break;
       case 'bool' : $this-> $field = (bool)$value; break;

@@ -10,7 +10,8 @@ $type_list = [
   'float'=> [ 'float', 'double', 'real' ],
   'string'=> [ 'char', 'varchar', 'text' ],
   'bool'=> [ 'bool', 'boolean' ],
-  '\DateTime'=> [ 'date', 'datetime', 'time' ]
+  'Date'=> [ 'date' ],
+  '\DateTime'=> [ 'datetime' ],
 ];
 
 $db = \DB\Database::getConnection();
@@ -60,13 +61,9 @@ while( $table_stat->fetch() ) {
   fprintf( $fh, "/*\n * %s – Persistant DB object\n */\n", $table_name );
   fprintf( $fh, "final class %s implements \\Persist\\PersistInterface, \\Iterator\n{\n", $table_name );
   fwrite( $fh, "\tuse \\DB\\PersistTrait,\\Persist\PersistIteratorTrait;\n\n" );
-  // fwrite( $fh, "\t/**\n" );
-  // foreach( $cols as $fieldName=> $fieldDescription ) {
-  //   fprintf( $fh, "\t * @var %s%s;\n", str_pad($fieldDescription[0],10) , $fieldName );
-  // };
-  // fwrite( $fh, "\t*/\n" );
+
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\tprivate ?%-10s\$%s;\n", $fieldDescription[0], $fieldName );
+    fprintf( $fh, "\tprivate ?%-10s\$%s;\n", $fieldDescription[0]==='Date' ? '\DateTime' : $fieldDescription[0], $fieldName );
   };
   fwrite( $fh, "\n// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
