@@ -164,7 +164,7 @@ trait PersistTrait
     $stmt-> setFetchMode( \PDO::FETCH_INTO, $this );
 
     if( !$stmt-> execute([':ID'=>$id]) ) {
-			throw DatabaseException::createStatementException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
+			throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
 		}
 
 		if( $stmt-> fetch( \PDO::FETCH_INTO ) ) {
@@ -553,7 +553,8 @@ trait PersistTrait
 	{
     switch($this-> getFields()[$fieldName][0]) {
       default : return isset($this-> $fieldName) ? $this-> $fieldName : '';
-      case '\DateTime' : return isset($this-> $fieldName) ? ($this-> $fieldName)-> format('Y-m-d') : '0000-00-00';
+      case '\DateTime' : return isset($this-> $fieldName) ? ($this-> $fieldName)-> format('Y-m-d H:i:s') : '0000-00-00 00:00:00';
+      case 'Date' : return isset($this-> $fieldName) ? ($this-> $fieldName)-> format('Y-m-d') : '0000-00-00';
     }
 	}
 	/**

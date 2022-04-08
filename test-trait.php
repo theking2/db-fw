@@ -42,7 +42,7 @@ foreach($obj as $test ) {
   <pre>
   {$test-> Name}
   {$test-> groesse}
-  {$test-> Date->format('Y-m-d')}
+  {$test-> Date}
   </pre>";
 }
   

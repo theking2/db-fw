@@ -62,8 +62,14 @@ while( $table_stat->fetch() ) {
   fprintf( $fh, "final class %s implements \\Persist\\PersistInterface, \\Iterator\n{\n", $table_name );
   fwrite( $fh, "\tuse \\DB\\PersistTrait,\\Persist\PersistIteratorTrait;\n\n" );
 
+  // Set the datatype for Date and DateTime to PHP \DateTime
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    fprintf( $fh, "\tprivate ?%-10s\$%s;\n", $fieldDescription[0]==='Date' ? '\DateTime' : $fieldDescription[0], $fieldName );
+    fprintf( $fh, "\tprivate ?%-10s\$%s;\n",
+      $fieldDescription[0]==='Date'
+        ? '\DateTime'
+        : $fieldDescription[0],
+      $fieldName
+    );
   };
   fwrite( $fh, "\n// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );

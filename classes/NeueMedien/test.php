@@ -4,7 +4,7 @@ namespace NeueMedien;
 /*
  * test – Persistant DB object
  */
-final class test extends \Persist\Persist implements \Iterator
+final class test implements \Persist\PersistInterface, \Iterator
 {
 	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
 
@@ -21,7 +21,7 @@ final class test extends \Persist\Persist implements \Iterator
 			'test_ID'            => ['int', 10 ],
 			'Name'               => ['string', 255 ],
 			'groesse'            => ['float', 0 ],
-			'Date'               => ['\DateTime', 0 ],
+			'Date'               => ['Date', 0 ],
 		];
 	}
 }
