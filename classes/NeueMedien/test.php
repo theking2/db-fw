@@ -8,9 +8,9 @@ final class test implements \Persist\PersistInterface, \Iterator
 {
 	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
 
-	private int       $test_ID;
-	private string    $Name;
-	private float       $groesse;
+	private ?int       $test_ID;
+	private ?string    $Name;
+	private ?float     $groesse;
 	private ?\DateTime $Date;
 
 // Persist functions
@@ -18,10 +18,10 @@ final class test implements \Persist\PersistInterface, \Iterator
 	static public function getTableName():string { return '`test`'; }
 	static public function getFields():array {
 		return [
-			'test_ID' => ['int', 10 ],
-			'Name' => ['string', 255 ],
-			'groesse' => ['float', 11 ],
-			'Date' => ['\DateTime', 0 ],
+			'test_ID'            => ['int', 10 ],
+			'Name'               => ['string', 255 ],
+			'groesse'            => ['float', 0 ],
+			'Date'               => ['\DateTime', 0 ],
 		];
 	}
 }
