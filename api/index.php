@@ -109,7 +109,8 @@ function doPut(array $uri): array
     return unprocessableEntityResponse();
   }
 
-  if($obj = new $uri[1]((int)$uri[2]) ) {
+  $obj = new $uri[1]((int)$uri[2]);
+  if( $obj-> isRecord()) {
     $input = json_decode(file_get_contents('php://input'), true);
     $obj-> setFromArray( $input );
 

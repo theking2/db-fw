@@ -11,7 +11,7 @@ final class test implements \Persist\PersistInterface, \Iterator
 	private int       $test_ID;
 	private string    $Name;
 	private float       $groesse;
-	private \DateTime $Date;
+	private ?\DateTime $Date;
 
 // Persist functions
 	static public function getPrimaryKey():string { return 'test_ID'; }
