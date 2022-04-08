@@ -11,19 +11,50 @@
 <body>
   <p id="message"></p>
   <input type="text" id="name">
-  <input type="number" id="groese">
+  <input type="number" id="groesse">
   <input type="date" id="date"><br>
   <button id="add">insert</button><br>
 
   <input type="number" id="id"><br>
+  <button id="get">find</button>
   <button id="del">delete</button>
   <button id="update">update</button>
 
+<template>
+  <tr>
+    <td id="tab-id">
+    <td id="tab-name">
+    <td id="tab-groesse">
+    <td id="tab-date">
+  </tr>
+</template>
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', e => {
     const id = document.getElementById('id');
     let message = document.getElementById('message');"";
+
+    // (async () => {
+    //   const response = await fetch('/test');
+    //   const data = await response.json();
+    // })();
+
+    document.getElementById('get').addEventListener('click', async ev => {
+      const response = await fetch(`/test/${id.value}`, { method: 'GET'} );
+      if (!response.ok) {
+        message.textContent = `Error: ${response.status}`;
+      } else if (200 <= response.status && response.status <= 299) {
+        //success
+        result = await response.json();
+        message.textContent = `${response.statusText} ${id.value} `;
+        document.getElementById('name').value = result.Name;
+        document.getElementById('groesse').value = result.groesse;
+        document.getElementById('date').value = result.Date;
+
+      } else {
+        message.textContent = `Error: ${response.statusText}`;
+      }
+    });
 
     document.getElementById('add').addEventListener('click', async ev => {
       const response = await fetch(`/test`, {
@@ -51,7 +82,7 @@
         method: 'PUT',
         body: JSON.stringify({
           Name: document.getElementById('name').value,
-          groesse: parseFloat(document.getElementById('groese').value),
+          groesse: parseFloat(document.getElementById('groesse').value),
           Date: document.getElementById('date').value
         })
       });

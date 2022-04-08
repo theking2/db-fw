@@ -1,24 +1,26 @@
 <?php declare(strict_types=1);
 namespace NeueMedien;
 
-/*
+/**
  * project – Persistant DB object
  */
-final class project implements \Persist\PersistInterface, \Iterator
+final class project
+	extends \Persist\Base
+	implements \Persist\IPersist, \Iterator
 {
-	use \DB\PersistTrait,\Persist\PersistIteratorTrait;
+	use \Persist\IteratorTrait, \DB\DBPersistTrait;
 
-	private ?int       $ID;
-	private ?int       $ParentID;
-	private ?string    $Number;
-	private ?string    $Name;
-	private ?string    $Description;
-	private ?int       $TypeID;
-	private ?int       $CustomerID;
-	private ?string    $Coach;
-	private ?int       $Status;
+	protected ?int       $ID;
+	protected ?int       $ParentID;
+	protected ?string    $Number;
+	protected ?string    $Name;
+	protected ?string    $Description;
+	protected ?int       $TypeID;
+	protected ?int       $CustomerID;
+	protected ?string    $Coach;
+	protected ?int       $Status;
 
-// Persist functions
+	// Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }
 	static public function getTableName():string { return '`project`'; }
 	static public function getFields():array {

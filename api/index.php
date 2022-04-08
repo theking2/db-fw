@@ -6,11 +6,12 @@ $allowed = ['test', 'project', 'projectview','address', 'country', 'projectrole'
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode( '/', $uri );
-if( !isset($uri[1]) or !in_array($uri[1], $allowed) ) {
+
+if( !isEntityValid($uri[1]) ) {
   sendResponse(notFoundResponse());
   exit();
 }
-if( isset($uri[2]) and !is_numeric($uri[2]) ) {
+if( !isParameterValid($uri) ) {
   sendResponse(unprocessableEntityResponse());
   exit();
 }
@@ -28,6 +29,31 @@ switch($requestMethod) {
 
 sendResponse($response);
 
+/**
+ * CHeck if a the request contains a valid entity name
+ *
+ * @param  ar $uri
+ * @return void
+ */
+function isEntityValid( ?string $entity ) {
+  global $allowed;
+  return $entity and in_array( $entity, $allowed );
+}
+
+/**
+ * If a parameter isther check if numeric
+ *
+ * @param  array $uri
+ * @return void
+ */
+function isParameterValid( array $uri ) {
+  if( isset($uri[2]) ) {
+    return is_numeric($uri[2]);
+  }
+  return true;
+}
+
+  
 /**
  * Send a prepared response
  *
@@ -57,20 +83,23 @@ function sendResponse(array $response): void
 function doGet(array $uri): array
 {
   if( isset($uri[2]) ) {
-    if( $obj = new $uri[1]((int)$uri[2]) ) {
+    if( $obj = new $uri[1]((int)$uri[2]) and $obj-> isRecord() ) {
       $response['status_code_header'] = 'HTTP/1.1 200 OK';
-      $response['body'] = $obj-> getJson();
+      $response['body'] = json_encode($obj-> getArrayCopy() );
+      return $response;
     } else {
       return notFoundResponse();
     }
-  } else {
-    $result = [];
-    foreach(new $uri[1] as $id=>$obj)
-      $result[$id] = $obj-> getArrayCopy();
-  
-    $response['status_code_header'] = 'HTTP/1.1 200 OK';
-    $response['body'] = json_encode($result);
   }
+
+  // no key provided, return all
+  // paging would be nice here
+  $result = [];
+  foreach(new $uri[1] as $id=>$obj)
+    $result[] = $obj-> getArrayCopy();
+
+  $response['status_code_header'] = 'HTTP/1.1 200 OK';
+  $response['body'] = json_encode($result);
 
   return $response;
 }

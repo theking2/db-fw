@@ -3,7 +3,7 @@
 namespace Persist;
 
 
-trait PersistIteratorTrait {
+trait IteratorTrait {
   /* #region Iterator */
   /** @var bool $valid true if a valid object */
   private bool $valid = false;
