@@ -76,7 +76,7 @@
       response = await fetch(url, request);
       if(!response.ok) {
         message.textContent = `Fehler: ${response.status}`;
-      } else if (response.status === 201) {
+      } else {
         message.textContent = `${response.status}: ${response.statusText}`;
       }
 
