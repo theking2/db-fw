@@ -132,7 +132,7 @@ abstract class Base implements IPersist
 			}
 		} else {
 			$this-> _dirty = [];
-			$this-> {$this-> getPrimaryKey()} = 0;
+			$this-> {$this-> getPrimaryKey()} = null;
 		}
 	}
   

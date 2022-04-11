@@ -5,15 +5,16 @@ $allowed = ['test', 'project', 'projectview','address', 'country', 'projectrole'
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$param = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
 $uri = explode( '/', $uri );
 
 if( !isEntityValid($uri[1]) ) {
   sendResponse(notFoundResponse());
   exit();
 }
-if( !isParameterValid($uri) ) {
-  sendResponse(unprocessableEntityResponse());
-  exit();
+
+if( $param ) {
+  $uri[2] = parseParameters($param);
 }
 
 // prepend the namespace
@@ -46,11 +47,21 @@ function isEntityValid( ?string $entity ) {
  * @param  array $uri
  * @return void
  */
-function isParameterValid( array $uri ) {
-  if( isset($uri[2]) ) {
-    return is_numeric($uri[2]);
+function parseParameters( ?string $param ) {
+  global $uri;
+  if( !isset($uri[2]) )  {
+    $param = explode('&', $param);
+    $result = [];
+    foreach( $param as $param )
+    {
+      $param = explode('=', $param);
+      $result[$param[0]] = '*'. str_replace('*','%',$param[1]); // use the like operator
+    }
+    return $result;
   }
-  return true;
+  else {
+    return $uri[2];
+  }
 }
 
   
@@ -75,15 +86,15 @@ function sendResponse(array $response): void
 }
 
 /**
- * Handle a GET request, if {id} is provide attempt to retrieve one, otherwis all.
+ * Handle a GET request, if {id} is provided attempt to retrieve one, otherwise all.
  *
  * @param  mixed $uri
  * @return array
  */
 function doGet(array $uri): array
 {
-  if( isset($uri[2]) ) {
-    if( $obj = new $uri[1]((int)$uri[2]) and $obj-> isRecord() ) {
+  if( isset($uri[2]) and !is_array($uri[2]) ) {
+    if( $obj = new $uri[1]($uri[2]) and $obj-> isRecord() ) {
       $response['status_code_header'] = 'HTTP/1.1 200 OK';
       $response['body'] = json_encode($obj-> getArrayCopy() );
       return $response;
@@ -92,11 +103,28 @@ function doGet(array $uri): array
     }
   }
 
+
+
   // no key provided, return all
   // paging would be nice here
+
   $result = [];
-  foreach(new $uri[1] as $id=>$obj)
-    $result[] = $obj-> getArrayCopy();
+
+  if( isset($uri[2]) and is_array($uri[2]) ) {
+    $where = [];
+    foreach( $uri[2] as $key => $value ) {
+      $where[$key] = $value;
+    }
+    $obj = new $uri[1]();
+    $obj-> setWhere($where);
+    foreach($obj as $o) {
+      $result[] = $o-> getArrayCopy();
+    }
+
+  } else {
+    foreach(new $uri[1] as $id=>$obj)
+      $result[] = $obj-> getArrayCopy();
+  }
 
   $response['status_code_header'] = 'HTTP/1.1 200 OK';
   $response['body'] = json_encode($result);
@@ -138,7 +166,7 @@ function doPut(array $uri): array
     return unprocessableEntityResponse();
   }
 
-  $obj = new $uri[1]((int)$uri[2]);
+  $obj = new $uri[1]($uri[2]);
   if( $obj-> isRecord()) {
     $input = json_decode(file_get_contents('php://input'), true);
     $obj-> setFromArray( $input );
@@ -166,7 +194,7 @@ function doDelete(array $uri): array
   if( !isset($uri[2]) ) {
     return notFoundResponse();
   }
-  $obj = new $uri[1]((int)$uri[2]);
+  $obj = new $uri[1]($uri[2]);
   if( !$obj-> isRecord() ) {
     return notFoundResponse();
   }
