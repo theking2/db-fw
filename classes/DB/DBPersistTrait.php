@@ -142,7 +142,7 @@ trait DBPersistTrait
    * @param  int $id
    * @return object
    */
-  public function thaw(int $id): ?object
+  public function thaw($id): ?\Persist\IPersist
   {
     $query = sprintf
       ( 'select %s from %s where `%s` = :ID'
@@ -161,11 +161,20 @@ trait DBPersistTrait
 		}
 
 		if( $stmt-> fetch( \PDO::FETCH_INTO ) ) {
-			$this-> {$this->getPrimaryKey()} = $id;
+			switch($this-> getFields()[$this-> getPrimaryKey()][0]) {
+				case 'int':
+					$this-> {$this->getPrimaryKey()} = (int)$id;
+					break;
+				case 'string':
+					$this-> {$this->getPrimaryKey()} = (string)$id;
+					break;
+				default:
+					throw new \Exception("Unknown type for primary key");
+			}
 			$this-> _dirty = [];
 			return $this;
 		} else {
-			$this-> {$this->getPrimaryKey()} = 0;
+			$this-> {$this->getPrimaryKey()} = null;
 			$this-> _dirty = [];
 			return null;
 		}
@@ -247,7 +256,7 @@ trait DBPersistTrait
 
 	/* #region Traversal */
 
-	/** @var \PDOStatemen $current_statement contains the statement for traversal */
+	/** @var \PDOStatement $current_statement contains the statement for traversal */
   private ?\PDOStatement $current_statement = null;
 
   /**
@@ -381,7 +390,7 @@ trait DBPersistTrait
 						default:break; // we take the operator as it is for all other cases
 					}
 
-					$where[] = ":$fieldname $operator `$fieldname`";
+					$where[] = "`$fieldname` $operator :$fieldname";
 				}
 			}
 		}
