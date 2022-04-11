@@ -6,7 +6,7 @@ require_once './inc/util.php';
 
 <section class="project-detail">
 <?php
-$project = new \NeueMedien\Project();
+$project = new \NeueMedien\project();
 $project-> thaw($_GET['pid']);
 echo wrap_tag('h1', $project->Name);
 echo wrap_tag('p', $project-> Number);
