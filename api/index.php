@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace NeueMedien;
 require '../inc/util.php';
-$allowed = ['test', 'project', 'projectview','address', 'country', 'projectrole', 'projecttype', 'student', 'studentrole', 'teacher', 'user' ];
+$allowed = ['test', 'project', 'projectview','address', 'country', 'projectrole', 'projecttype', 'student', 'studentrole', 'teacher', 'timesheet', 'user' ];
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -22,8 +22,8 @@ $uri[1] = __NAMESPACE__ . '\\' . $uri[1];
 
 switch($requestMethod) {
   case 'GET':    $response = doGet($uri);               break;
-  case 'POST':   $response = doPost($uri);              break;
-  case 'PUT':    $response = doPut($uri);               break;
+  case 'POST':   $response = doCreate($uri);              break;
+  case 'PUT':    $response = doUpdate($uri);               break;
   case 'DELETE': $response = doDelete($uri);            break;
   default:       $response = $this->notFoundResponse(); break;
 }
@@ -126,6 +126,9 @@ function doGet(array $uri): array
       $result[] = $obj-> getArrayCopy();
   }
 
+  if( count($result)===0 ) {
+    return notFoundResponse();
+  }
   $response['status_code_header'] = 'HTTP/1.1 200 OK';
   $response['body'] = json_encode($result);
 
@@ -138,7 +141,7 @@ function doGet(array $uri): array
  * @param  mixed $uri
  * @return array
  */
-function doPost(array $uri): array
+function doCreate(array $uri): array
 {
   $response = [];
   $input = json_decode(file_get_contents('php://input'), true);
@@ -158,7 +161,7 @@ function doPost(array $uri): array
  * @param  mixed $uri
  * @return array
  */
-function doPut(array $uri): array
+function doUpdate(array $uri): array
 {
   $response = [];
 

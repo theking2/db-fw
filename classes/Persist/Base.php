@@ -87,7 +87,7 @@ abstract class Base implements IPersist
 
 	/* #region generic */
 	/** isRecord - true if record exists in database */
-	public function isRecord():bool { return isset($this-> {static::getPrimaryKey()}) and $this-> {static::getPrimaryKey()} > 0; } 
+	public function isRecord():bool { return isset($this-> {static::getPrimaryKey()}) and !is_null( $this-> {static::getPrimaryKey()} ); } 
 	
 	/** getKeyValue - retrieve current key */
 	public function getKeyValue(): ?int { return $this-> isRecord()? (int)($this-> {static::getPrimaryKey()}): null; }

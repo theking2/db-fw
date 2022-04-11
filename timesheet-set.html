@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test API</title>
+</head>
+
+<body>
+
+  <label for="ProjectID">Projekt</label><input name="ProjectID" id="ProjectID" value="205"><br>
+  <label for="StudentID">LP</label><input name="StudentID" id="StudentID" value="29"><br>
+  <label for="date">Datum:</label><input type="date" id="date"><br>
+  <label for="minutes">Min.:</label><input type="number" id="minutes" min="15" max="240" step="15"><br>
+  
+  <button id="add">insert</button><br>
+
+  <p id="message"></p>
+
+  <template>
+  <tr>
+    <td id="tab-id">
+    <td id="tab-name">
+    <td id="tab-groesse">
+    <td id="tab-date">
+  </tr>
+</template>
+</body>
+<script>
+  document.addEventListener('DOMContentLoaded', e => {
+    const id = document.getElementById('id');
+    let message = document.getElementById('message');"";
+
+
+
+    document.getElementById('add').addEventListener('click', async ev => {
+      const projectID = document.getElementById('ProjectID').value;
+      const studentID = document.getElementById('StudentID').value;
+      const date = document.getElementById('date').value;
+      const minutes = document.getElementById('minutes').value;
+      
+      let id = null;
+      let url = `/timesheet?ProjectID=${projectID}&StudentID=${studentID}&Date=${date}`;
+      let response = await fetch(url);
+      if(!response.ok) {
+        message.innerHTML = `Fehler: ${response.status}`;
+      } else if (response.status === 200) {
+        result = await response.json();
+        id = result[0].ID;
+      }
+
+      const body = JSON.stringify({
+        ProjectID: projectID,
+        StudentID: studentID,
+        Date: date,
+        Minutes: minutes
+      });
+      let request;
+      if( id ) {
+        url = `/timesheet/${id}`;
+        request = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: body
+        };
+      } else {
+        url = '/timesheet';
+        request = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body
+        };
+      }
+      response = await fetch(url, request);
+      if(!response.ok) {
+        message.textContent = `Fehler: ${response.status}`;
+      } else if (response.status === 201) {
+        message.textContent = `${response.status}: ${response.statusText}`;
+      }
+
+
+  })
+});
+
+</script>
+
+</html>
