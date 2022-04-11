@@ -175,7 +175,7 @@ function doUpdate(array $uri): array
     $obj-> setFromArray( $input );
 
     if( $result = $obj-> freeze() ) {
-      $response['status_code_header'] = 'HTTP/1.1 201 Updated';
+      $response['status_code_header'] = 'HTTP/1.1 200 Updated';
       $response['body'] = json_encode( ['id'=> $obj-> getKeyValue(), 'result'=> $result ] );
 
     } else {
@@ -201,7 +201,7 @@ function doDelete(array $uri): array
   if( !$obj-> isRecord() ) {
     return notFoundResponse();
   }
-  $response['status_code_header'] = 'HTTP/1.1 202 DELETED';
+  $response['status_code_header'] = 'HTTP/1.1 200 DELETED';
   $response['body'] = json_encode( [ 'id'=> (int)$uri[2], 'result'=> $obj->delete() ] );
   return $response;
 
