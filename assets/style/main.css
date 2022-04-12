@@ -1,4 +1,8 @@
+:root {
+  --color-primary: #00bcd4;
+  --color-secondary: #fafafa;
 
+}
 @font-face{ 
 	font-family: 'Cadman';
 	src: url('../fonts/Cadman_Roman-webfont.woff') format('woff');
@@ -59,4 +63,63 @@ a.project-tile {
 a.project-tile:hover {
   box-shadow: 0 0 15px teal;
 
+}
+'
+button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: all 150ms;
+}
+input{
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+  margin: 0;
+  width: 100%;
+  font-size: 1em;
+  font-family: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background: transparent;
+}
+.autocomplete {
+  position: relative;
+  display: inline-block;
+}
+
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid var(--color-primary); 
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+  background-color: var(--color-primary); 
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+  background-color: var(--color-primary); 
+  color: #ffffff; 
 }

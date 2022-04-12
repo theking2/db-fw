@@ -5,46 +5,58 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./assets/style/main.css">
   <title>Test API</title>
 </head>
 
 <body>
 
-  <label for="ProjectID">Projekt</label><input name="ProjectID" id="ProjectID" value="205"><br>
-  <label for="StudentID">LP</label><input name="StudentID" id="StudentID" value="29"><br>
-  <label for="date">Datum:</label><input type="date" id="date"><br>
-  <label for="minutes">Min.:</label><input type="number" id="minutes" min="15" max="240" step="15"><br>
-  
-  <button id="add">insert</button><br>
+  <form autocomplet="off" action="#" style="width:300px">
+    <div class="autocomplete" style="width:300px;">
+      <label for="project">Projekt</label><input name="project" id="project" placeholder="Projekt">
+      <input type="hidden" name="project-id" id="project-id" value="">
+    </div>
+    <div class="autocomplete" style="width:300px;">
+      <label for="student">LP</label><input name="student" id="student" value="">
+      <input type="hidden" name="student-id" id="student-id" value="">
+    </div>   
+    <!-- <label for="ProjectID">ProjektID</label><input name="ProjectID" id="ProjectID" value="205"><br> -->
+    <!-- <label for="StudentID">LP</label><input name="StudentID" id="StudentID" value="29"><br> -->
+    <label for="date">Datum:</label><input type="date" id="date"><br>
+    <label for="minutes">Min.:</label><input type="number" id="minutes" min="15" max="240" step="15"><br>
 
+    <button id="add">insert</button><br>
+  </form>
   <p id="message"></p>
+  <form autocomplete="off" action="#">
+  </form>
 
   <template>
-  <tr>
-    <td id="tab-id">
-    <td id="tab-name">
-    <td id="tab-groesse">
-    <td id="tab-date">
-  </tr>
-</template>
+    <tr>
+      <td id="tab-id">
+      <td id="tab-name">
+      <td id="tab-groesse">
+      <td id="tab-date">
+    </tr>
+  </template>
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', e => {
+    const project = document.getElementById('Project');
     const id = document.getElementById('id');
-    let message = document.getElementById('message');"";
-
-
+    let message = document.getElementById('message'); "";
 
     document.getElementById('add').addEventListener('click', async ev => {
-      const projectID = document.getElementById('ProjectID').value;
-      const studentID = document.getElementById('StudentID').value;
+      ev.preventDefault();
+      const projectID = document.getElementById('project-id').value;
+      const studentID = document.getElementById('student-id').value;
       const date = document.getElementById('date').value;
       const minutes = document.getElementById('minutes').value;
-      
+
       let id = null;
       let url = `/timesheet?ProjectID=${projectID}&StudentID=${studentID}&Date=${date}`;
       let response = await fetch(url);
-      if(!response.ok) {
+      if (!response.ok) {
         message.innerHTML = `Fehler: ${response.status}`;
       } else if (response.status === 200) {
         result = await response.json();
@@ -58,7 +70,7 @@
         Minutes: minutes
       });
       let request;
-      if( id ) {
+      if (id) {
         url = `/timesheet/${id}`;
         request = {
           method: 'PUT',
@@ -74,16 +86,110 @@
         };
       }
       response = await fetch(url, request);
-      if(!response.ok) {
+      if (!response.ok) {
         message.textContent = `Fehler: ${response.status}`;
       } else {
         message.textContent = `${response.status}: ${response.statusText}`;
       }
 
 
-  })
-});
+    })
+  });
 
+</script>
+
+<script>
+  autocomplete = (input, inputID, ajaxUrl) => {
+    let currentFocus = -1;
+
+    input.addEventListener('input', async e => {
+      let a, i, val = input.value;
+      closeAllLists();
+      if (val.length > 1) {
+        const result = await fetch( ajaxUrl + val + '*' );
+        const data = await result.json();
+        const list = document.getElementById('select-list');
+
+        const a = document.createElement('div');
+        a.setAttribute('id', 'autocomplete-list');
+        a.setAttribute('class', 'autocomplete-items');
+        input.parentNode.appendChild(a);
+
+        let i = 10;
+        data.every(project => {
+          const b = document.createElement('div');
+          b.innerHTML = project.Name;
+          b.dataset.id = project.ID;
+          b.addEventListener('click', e => {
+            inputID.value = b.dataset.id;
+            input.value = b.innerHTML;
+            closeAllLists();
+          });
+          a.appendChild(b);
+          return (i--);
+        });
+      }
+    });
+
+
+    input.addEventListener("keydown", function (e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        currentFocus++;
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        currentFocus--;
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        e.preventDefault();
+        if (currentFocus > -1) {
+          if (x) x[currentFocus].click();
+        }
+      }
+    });
+
+    /**
+     * 
+     * @param {HTMLElement[]} x
+     */
+    function addActive(x) {
+      if (!x) return false;
+      removeActive(x);
+      if (currentFocus >= x.length) currentFocus = 0;
+      if (currentFocus < 0) currentFocus = (x.length - 1);
+      x[currentFocus].classList.add("autocomplete-active");
+    }
+    /**
+     * Remove active class from all autocomplete items
+     */
+    function removeActive(x) {
+      [].forEach.call(x, item => {
+        x[i].classList.remove("autocomplete-active");
+      });
+    }
+    /**
+     * Close all autocomplete lists in the document, except the one passed as an argument.
+     * 
+     * @param {HTMLElement} node - The node to ignore.
+     */
+    function closeAllLists(elmnt) {
+      const x = document.getElementsByClassName("autocomplete-items");
+      [].forEach.call(x, item => {
+        if (elmnt != item && elmnt != input) {
+          item.parentNode.removeChild(item);
+        }
+      });
+    }
+    /*execute a function when someone clicks in the document:*/
+    document.addEventListener("click", function (e) {
+      closeAllLists(e.target);
+    });
+
+  };
+
+  autocomplete(document.getElementById("project"), document.getElementById("project-id"), '/project?Name=');
+  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?FullName=');
 </script>
 
 </html>

@@ -22,6 +22,7 @@ final class student
 			'ID'                 => ['int', 10 ],
 			'Name'               => ['string', 255 ],
 			'Firstname'          => ['string', 255 ],
+			'FullName'           => ['string', 255 ],
 		];
 	}
 }
