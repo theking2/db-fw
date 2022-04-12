@@ -1,6 +1,6 @@
 :root {
   --color-primary: #00bcd4;
-  --color-secondary: #fafafa;
+
 
 }
 @font-face{ 
@@ -121,6 +121,6 @@ input{
 
 /*when navigating through the items using the arrow keys:*/
 .autocomplete-active {
-  background-color: var(--color-primary); 
+  background-color: var(--color-primary) !important; 
   color: #ffffff; 
 }
