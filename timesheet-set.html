@@ -94,6 +94,7 @@
     const data = await response.json();
     data.forEach( row => {
       const tr = document.createElement('tr');
+      tr.dataset.id = row.ID
       let td = document.createElement('td');
       td.textContent = row.ProjectName;
       tr.appendChild(td);
