@@ -111,16 +111,16 @@
   autocomplete = (input, inputID, ajaxUrl, fieldName) => {
     let currentFocus = -1;
 
-    input.addEventListener('input', async e => {
+    input.addEventListener('input', async function(e) {
       let a, i, val = input.value;
       closeAllLists();
-      if (val.length > 1) {
+      if (val.length > 0) {
         const result = await fetch( ajaxUrl + val + '*' );
         const data = await result.json();
         const list = document.getElementById('select-list');
 
         const a = document.createElement('div');
-        a.setAttribute('id', 'autocomplete-list');
+        a.setAttribute('id', this.id + 'autocomplete-list');
         a.setAttribute('class', 'autocomplete-items');
         input.parentNode.appendChild(a);
 
@@ -174,7 +174,7 @@
      */
     function removeActive(x) {
       [].forEach.call(x, item => {
-        x[i].classList.remove("autocomplete-active");
+        item.classList.remove("autocomplete-active");
       });
     }
     /**
