@@ -29,14 +29,6 @@
     <p id="message"></p>
   </form>
 
-  <template>
-    <tr>
-      <td id="tab-id">
-      <td id="tab-name">
-      <td id="tab-groesse">
-      <td id="tab-date">
-    </tr>
-  </template>
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', e => {
@@ -187,7 +179,7 @@
   };
 
   autocomplete(document.getElementById("project"), document.getElementById("project-id"), '/project?Name=', 'Name');
-  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?FullName=', 'FullName');
+  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?Fullname=', 'Fullname');
 </script>
 
 </html>
