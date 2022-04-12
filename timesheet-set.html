@@ -11,24 +11,22 @@
 
 <body>
 
-  <form autocomplet="off" action="#" style="width:300px">
+  <form autocomplet="off" action="#" style="width:300px;margin:auto;">
     <div class="autocomplete" style="width:300px;">
-      <label for="project">Projekt</label><input name="project" id="project" placeholder="Projekt">
+      <input name="project" id="project" placeholder="Projekt">
       <input type="hidden" name="project-id" id="project-id" value="">
     </div>
     <div class="autocomplete" style="width:300px;">
-      <label for="student">LP</label><input name="student" id="student" value="">
+      <input name="student" id="student" placeholder="Lernpartner">
       <input type="hidden" name="student-id" id="student-id" value="">
     </div>   
     <!-- <label for="ProjectID">ProjektID</label><input name="ProjectID" id="ProjectID" value="205"><br> -->
     <!-- <label for="StudentID">LP</label><input name="StudentID" id="StudentID" value="29"><br> -->
-    <label for="date">Datum:</label><input type="date" id="date"><br>
-    <label for="minutes">Min.:</label><input type="number" id="minutes" min="15" max="240" step="15"><br>
+    <input type="date" id="date"><br>
+    <input type="number" id="minutes" min="15" max="240" step="15" placeholder="Minuten"><br>
 
     <button id="add">insert</button><br>
-  </form>
-  <p id="message"></p>
-  <form autocomplete="off" action="#">
+    <p id="message"></p>
   </form>
 
   <template>
@@ -99,7 +97,7 @@
 </script>
 
 <script>
-  autocomplete = (input, inputID, ajaxUrl) => {
+  autocomplete = (input, inputID, ajaxUrl, fieldName) => {
     let currentFocus = -1;
 
     input.addEventListener('input', async e => {
@@ -118,7 +116,7 @@
         let i = 10;
         data.every(project => {
           const b = document.createElement('div');
-          b.innerHTML = project.Name;
+          b.innerHTML = project[fieldName];
           b.dataset.id = project.ID;
           b.addEventListener('click', e => {
             inputID.value = b.dataset.id;
@@ -188,8 +186,8 @@
 
   };
 
-  autocomplete(document.getElementById("project"), document.getElementById("project-id"), '/project?Name=');
-  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?FullName=');
+  autocomplete(document.getElementById("project"), document.getElementById("project-id"), '/project?Name=', 'Name');
+  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?FullName=', 'FullName');
 </script>
 
 </html>

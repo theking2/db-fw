@@ -27,6 +27,7 @@ abstract class Base implements IPersist
   public function __set(string $field, $value):void {
 		// Prepare for incorrect dates.
 		$convert_date = function( $value, $format ) {
+			if( is_null($value) ) return null;
 			if ($d = \DateTime::createFromFormat( $format, $value ) )
 				return $d; 
 			return null;
