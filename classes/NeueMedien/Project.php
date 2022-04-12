@@ -3,6 +3,15 @@ namespace NeueMedien;
 
 /**
  * project – Persistant DB object
+ * int       $ID;
+ * int       $ParentID;
+ * string    $Number;
+ * string    $Name;
+ * string    $Description;
+ * int       $TypeID;
+ * int       $CustomerID;
+ * string    $Coach;
+ * int       $Status;
  */
 final class project
 	extends \Persist\Base

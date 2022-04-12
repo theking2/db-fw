@@ -3,6 +3,10 @@ namespace NeueMedien;
 
 /**
  * test – Persistant DB object
+ * int       $test_ID;
+ * string    $Name;
+ * float     $groesse;
+ * \DateTime $Date;
  */
 final class test
 	extends \Persist\Base

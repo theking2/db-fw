@@ -3,6 +3,11 @@ namespace NeueMedien;
 
 /**
  * timesheet – Persistant DB object
+ * int       $ID;
+ * int       $ProjectID;
+ * int       $StudentID;
+ * \DateTime $Date;
+ * int       $Minutes;
  */
 final class timesheet
 	extends \Persist\Base

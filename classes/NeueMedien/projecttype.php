@@ -2,13 +2,11 @@
 namespace NeueMedien;
 
 /**
- * student – Persistant DB object
+ * projecttype – Persistant DB object
  * int       $ID;
  * string    $Name;
- * string    $Firstname;
- * string    $Fullname;
  */
-final class student
+final class projecttype
 	extends \Persist\Base
 	implements \Persist\IPersist, \Iterator
 {
@@ -16,18 +14,14 @@ final class student
 
 	protected ?int       $ID;
 	protected ?string    $Name;
-	protected ?string    $Firstname;
-	protected ?string    $Fullname;
 
 	// Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }
-	static public function getTableName():string { return '`student`'; }
+	static public function getTableName():string { return '`projecttype`'; }
 	static public function getFields():array {
 		return [
 			'ID'                 => ['int', 10 ],
 			'Name'               => ['string', 255 ],
-			'Firstname'          => ['string', 255 ],
-			'Fullname'           => ['string', 250 ],
 		];
 	}
 }

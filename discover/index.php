@@ -58,7 +58,20 @@ while( $table_stat->fetch() ) {
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
   fwrite( $fh, "<?php declare(strict_types=1);\n" );
   fprintf( $fh, "namespace %s;\n\n", _NAMESPACE );
-  fprintf( $fh, "/**\n * %s – Persistant DB object\n */\n", $table_name );
+  fprintf( $fh, "/**\n * %s – Persistant DB object\n", $table_name );
+
+  // Set the datatype for Date and DateTime to PHP \DateTime
+  foreach( $cols as $fieldName=> $fieldDescription ) {
+    fprintf( $fh, " * %-10s\$%s;\n",
+      $fieldDescription[0]==='Date'
+        ? '\DateTime'
+        : $fieldDescription[0],
+      $fieldName
+    );
+  };
+
+  fwrite( $fh, " */\n");
+ 
   fprintf( $fh, "final class %s\n\textends \\Persist\\Base\n", $table_name );
   fwrite( $fh, "\timplements \\Persist\\IPersist, \\Iterator\n{\n", );
   fwrite( $fh, "\tuse \\Persist\IteratorTrait, \\DB\\DBPersistTrait;\n\n" );

@@ -3,6 +3,10 @@ namespace NeueMedien;
 
 /**
  * teacher – Persistant DB object
+ * string    $Abbr;
+ * string    $Name;
+ * string    $Firstname;
+ * string    $FullName;
  */
 final class teacher
 	extends \Persist\Base

@@ -3,6 +3,12 @@ namespace NeueMedien;
 
 /**
  * studentroleproject – Persistant DB object
+ * int       $ID;
+ * int       $StudentID;
+ * int       $ProjectID;
+ * \DateTime $Start;
+ * string    $ProjectRoleID;
+ * \DateTime $End;
  */
 final class studentroleproject
 	extends \Persist\Base

@@ -3,6 +3,8 @@ namespace NeueMedien;
 
 /**
  * projectrole – Persistant DB object
+ * string    $ID;
+ * string    $Name;
  */
 final class projectrole
 	extends \Persist\Base
