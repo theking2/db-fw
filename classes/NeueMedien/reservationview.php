@@ -2,17 +2,15 @@
 namespace NeueMedien;
 
 /**
- * studentprojectview – Persistant DB object
- * int       $ID;
+ * reservationview – Persistant DB object
+ * int       $ID
  * string    $Name;
- * string    $ProjectNr;
- * int       $ProjectID;
+ * string    $Number;
  * string    $Fullname;
- * string    $Role;
  * \DateTime $Start;
  * \DateTime $End;
  */
-final class studentprojectview
+final class reservationview
 	extends \Persist\Base
 	implements \Persist\IPersist, \Iterator
 {
@@ -20,26 +18,22 @@ final class studentprojectview
 
 	protected ?int       $ID;
 	protected ?string    $Name;
-	protected ?string    $ProjectNr;
-	protected ?int       $ProjectID;
+	protected ?string    $Number;
 	protected ?string    $Fullname;
-	protected ?string    $Role;
 	protected ?\DateTime $Start;
 	protected ?\DateTime $End;
 
 	// Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }
-	static public function getTableName():string { return '`studentprojectview`'; }
+	static public function getTableName():string { return '`reservationview`'; }
 	static public function getFields():array {
 		return [
 			'ID'                 => ['int', 10 ],
-			'Name'               => ['string', 255 ],
-			'ProjectID'          => ['int', 10 ],
-			'ProjectNr'          => ['string', 10 ],
+			'Name'               => ['string', 45 ],
+			'Number'             => ['string', 6 ],
 			'Fullname'           => ['string', 250 ],
-			'Role'               => ['string', 31 ],
-			'Start'              => ['Date', 0 ],
-			'End'                => ['Date', 0 ],
+			'Start'              => ['\DateTime', 0 ],
+			'End'                => ['\DateTime', 0 ],
 		];
 	}
 }
