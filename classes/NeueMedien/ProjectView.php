@@ -3,6 +3,12 @@ namespace NeueMedien;
 
 /**
  * projectview – Persistant DB object
+ * int       $ProjectID;
+ * string    $ProjectNr;
+ * string    $ProjectName;
+ * string    $ProjectType;
+ * int       $ProjectStatus;
+ * string    $Coach;
  */
 final class projectview
 	extends \Persist\Base

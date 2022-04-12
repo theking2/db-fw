@@ -3,6 +3,8 @@ namespace NeueMedien;
 
 /**
  * country – Persistant DB object
+ * string    $ISO;
+ * string    $German;
  */
 final class country
 	extends \Persist\Base

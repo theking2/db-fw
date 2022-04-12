@@ -3,6 +3,13 @@ namespace NeueMedien;
 
 /**
  * studentprojectview – Persistant DB object
+ * int       $ID;
+ * string    $Name;
+ * string    $ProjectNr;
+ * string    $Fullname;
+ * string    $Role;
+ * \DateTime $Start;
+ * \DateTime $End;
  */
 final class studentprojectview
 	extends \Persist\Base
@@ -12,6 +19,7 @@ final class studentprojectview
 
 	protected ?int       $ID;
 	protected ?string    $Name;
+	protected ?string    $ProjectNr;
 	protected ?string    $Fullname;
 	protected ?string    $Role;
 	protected ?\DateTime $Start;
@@ -24,6 +32,7 @@ final class studentprojectview
 		return [
 			'ID'                 => ['int', 10 ],
 			'Name'               => ['string', 255 ],
+			'ProjectNr'          => ['string', 10 ],
 			'Fullname'           => ['string', 250 ],
 			'Role'               => ['string', 31 ],
 			'Start'              => ['Date', 0 ],
