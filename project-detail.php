@@ -15,3 +15,16 @@ echo wrap_tag('p', $project-> Description);
 ?>
 <a href="./">Zurück</a>
 </section>
+
+<?php
+$details = new \NeueMedien\studentprojectview();
+$details-> setWhere([ 'ProjectID' => '=' . $project->ID ]);
+foreach($details as $id=> $detail) {?>
+<section class="student-detail">
+  <ul>
+    <li data-id="<?= $detail->StudentID ?>">
+      <?= $detail->Fullname ?>
+      (<?= $detail-> Role?>)</li>
+  </ul>
+<?php  }
+   
