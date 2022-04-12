@@ -31,4 +31,44 @@ VIEW `project`.`studentprojectview` AS
         (((`project`.`studentroleproject` `srp`
         JOIN `project`.`project` `p` ON (`p`.`ID` = `srp`.`ProjectID`))
         JOIN `project`.`projectrole` `r` ON (`r`.`ID` = `srp`.`ProjectRoleID`))
-        JOIN `project`.`student` `s` ON (`s`.`ID` = `srp`.`StudentID`))
+        JOIN `project`.`student` `s` ON (`s`.`ID` = `srp`.`StudentID`));
+
+CREATE VIEW reservationview as
+SELECT
+    `r`.`ID` AS `ID`,
+    `e`.`Name` AS `Name`,
+    `e`.`Number` AS `Number`,
+    `s`.`Fullname` AS `Fullname`,
+    `r`.`Start` AS `Start`,
+    `r`.`End` AS `End`
+FROM
+    (
+        (
+            `project`.`equipment_reservation` `r`
+        JOIN `project`.`student` `s`
+        ON
+            (`s`.`ID` = `r`.`StudentID`)
+        )
+    JOIN `project`.`equipment` `e`
+    ON
+        (`e`.`ID` = `r`.`EquipmentID`)
+    );
+
+CREATE VIEW equipmentview as
+SELECT
+    `e`.`ID` AS `ID`,
+    `e`.`Name` AS `Name`,
+    `e`.`Number` AS `Number`,
+    `e`.`Description` AS `Description`,
+    `t`.`Name` AS `Type`
+FROM
+    (
+        `project`.`equipment` `e`
+    JOIN `project`.`equipmenttype` `t`
+    ON
+        (`e`.`EquipmentTypeID` = `t`.`ID`)
+    )
+ORDER BY
+    `t`.`Name`,
+    `e`.`Name`;
+

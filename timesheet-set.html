@@ -27,6 +27,8 @@
 
     <button id="add">insert</button><br>
     <p id="message"></p>
+
+    <table id="time-sheet"></table>
   </form>
 
 </body>
@@ -82,9 +84,28 @@
         message.textContent = `${response.status}: ${response.statusText}`;
       }
 
-
+      updateTimeSheet(studentID);
     })
   });
+  async function updateTimeSheet(id) {
+    const timeSheet = document.getElementById('time-sheet');
+    timeSheet.innerHTML = '';
+    const response = await fetch(`/timesheetview?StudentID=${id}`);
+    const data = await response.json();
+    data.forEach( row => {
+      const tr = document.createElement('tr');
+      let td = document.createElement('td');
+      td.textContent = row.ProjectName;
+      tr.appendChild(td);
+      td = document.createElement('td');
+      td.textContent = row.Date;
+      tr.appendChild(td);
+      td = document.createElement('td');
+      td.textContent = row.Minutes;
+      tr.appendChild(td);
+      timeSheet.appendChild(tr);
+    });
+  }
 
 </script>
 

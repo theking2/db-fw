@@ -90,6 +90,7 @@ input{
   color: inherit;
   background: transparent;
 }
+
 .autocomplete {
   position: relative;
   display: inline-block;
@@ -123,4 +124,9 @@ input{
 .autocomplete-active {
   background-color: var(--color-primary) !important; 
   color: #ffffff; 
+}
+
+.time-sheet tr {
+  background-color: var(--color-primary);
+  border-color: var(--color-secondary);
 }
