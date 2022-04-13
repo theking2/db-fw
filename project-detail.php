@@ -45,6 +45,18 @@ foreach( new \NeueMedien\teacher() as $coachID => $coach ){
       location.reload();
     }
   };
+  document.getElementById('coach').onchange = async ev=> {
+    const projectID = document.getElementById('pid').value;
+    const coachID = ev.target.value;
+    const response = await fetch(`./project/${projectID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ Coach: coachID })
+    });
+    if( response.ok ) {
+      location.reload();
+    }
+  };
 </script>
 <?php
 $details = new \NeueMedien\studentprojectview();
