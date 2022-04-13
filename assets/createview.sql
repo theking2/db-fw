@@ -1,6 +1,4 @@
-CREATE 
-
-VIEW `project`.`projectview` AS
+CREATE VIEW `project`.`projectview` AS
     SELECT 
         `project`.`project`.`ID` AS `ProjectID`,
         `project`.`project`.`Number` AS `ProjectNr`,
@@ -16,13 +14,13 @@ VIEW `project`.`projectview` AS
         `project`.`project`.`Status` >= 0;
 
 
-CREATE 
-
-VIEW `project`.`studentprojectview` AS
+CREATE VIEW `project`.`studentprojectview` AS
     SELECT 
         `srp`.`ID` AS `ID`,
+        `p`.`ID` AS `ProjectID`,
         `p`.`Name` AS `Name`,
         `p`.`Number` AS `ProjectNr`,
+        `s`.`ID` AS `StudentID`,
         `s`.`Fullname` AS `Fullname`,
         `r`.`Name` AS `Role`,
         `srp`.`Start` AS `Start`,
@@ -72,3 +70,24 @@ ORDER BY
     `t`.`Name`,
     `e`.`Name`;
 
+CREATE VIEW timesheetview AS
+SELECT
+    `t`.`ID` AS `ID`,
+    `t`.`StudentID` AS `StudentID`,
+    `s`.`Fullname` AS `Fullname`,
+    `p`.`Name` AS `ProjectName`,
+    `p`.`Number` AS `Number`,
+    `t`.`Date` AS `Date`,
+    `t`.`Minutes` AS `Minutes`
+FROM
+    (
+        (
+            `project`.`timesheet` `t`
+        JOIN `project`.`student` `s`
+        ON
+            (`s`.`ID` = `t`.`StudentID`)
+        )
+    JOIN `project`.`project` `p`
+    ON
+        (`p`.`ID` = `t`.`ProjectID`)
+    )

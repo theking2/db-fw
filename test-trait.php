@@ -21,10 +21,10 @@ $name = $obj-> Name = chr(rand(40,90));
 $obj-> groesse = 1.60+rand(0,3);
 $obj-> freeze();
 
-$obj-> Name = "=$name";
-foreach($obj as $key => $value) {
-  $obj-> delete();
-}
+// $obj-> Name = "=$name";
+// foreach($obj as $key => $value) {
+//   $obj-> delete();
+// }
 
 
 // for( $i=100000; $i>0; $i-- ) {

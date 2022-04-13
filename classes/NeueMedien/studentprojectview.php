@@ -4,9 +4,10 @@ namespace NeueMedien;
 /**
  * studentprojectview – Persistant DB object
  * int       $ID;
+ * int       $ProjectID;
  * string    $Name;
  * string    $ProjectNr;
- * int       $ProjectID;
+ * int       $StudentID;
  * string    $Fullname;
  * string    $Role;
  * \DateTime $Start;
@@ -19,9 +20,10 @@ final class studentprojectview
 	use \Persist\IteratorTrait, \DB\DBPersistTrait;
 
 	protected ?int       $ID;
+	protected ?int       $ProjectID;
 	protected ?string    $Name;
 	protected ?string    $ProjectNr;
-	protected ?int       $ProjectID;
+	protected ?int       $StudentID;
 	protected ?string    $Fullname;
 	protected ?string    $Role;
 	protected ?\DateTime $Start;
@@ -33,9 +35,10 @@ final class studentprojectview
 	static public function getFields():array {
 		return [
 			'ID'                 => ['int', 10 ],
-			'Name'               => ['string', 255 ],
 			'ProjectID'          => ['int', 10 ],
+			'Name'               => ['string', 255 ],
 			'ProjectNr'          => ['string', 10 ],
+			'StudentID'          => ['int', 10 ],
 			'Fullname'           => ['string', 250 ],
 			'Role'               => ['string', 31 ],
 			'Start'              => ['Date', 0 ],
