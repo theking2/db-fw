@@ -7,7 +7,7 @@ require_once './inc/util.php';
 
 <section class="project-detail" style="width:400px;margin:auto">
 <?php
-$project = new \NeueMedien\Project();
+$project = new \NeueMedien\project();
 $project-> thaw((int)$_GET['pid']);
 ?>
 <h1><?= $project-> Name ?></h1>
@@ -16,7 +16,7 @@ $project-> thaw((int)$_GET['pid']);
 <label for="project-type">Projekttyp</label>
 <select id="project-type">
 <?php
-foreach( new \NeueMedien\ProjectType() as $typeID => $type ){
+foreach( new \NeueMedien\projecttype() as $typeID => $type ){
   echo "<option value='$typeID' " . ($typeID == $project-> TypeID ? 'selected' : '') . ">{$type-> Name}</option>";
 }
 ?>
@@ -24,7 +24,7 @@ foreach( new \NeueMedien\ProjectType() as $typeID => $type ){
 <label for="coach">Coach</label>
 <select id="coach">
 <?php
-foreach( new \NeueMedien\Teacher() as $coachID => $coach ){
+foreach( new \NeueMedien\teacher() as $coachID => $coach ){
   echo "<option value='$coachID' " . ($coachID == $project-> Coach ? 'selected' : '') . ">{$coach-> FullName}</option>";
 }
 ?>
