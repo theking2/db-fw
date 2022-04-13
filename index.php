@@ -18,8 +18,9 @@ require_once './inc/util.php';
 foreach( new \NeueMedien\projectview() as $projectID => $project ){
   echo "<div class='project-tile' href='project-detail.php?pid=$projectID'>";
   echo "<div class='flip-card-inner'>";
-  echo wrap_tag('div', wrap_tag( 'h2', $project-> ProjectName), 'flip-card-front');
+  echo wrap_tag('div', wrap_tag( 'h1', $project-> ProjectName), 'flip-card-front');
   echo wrap_tag('div',
+    wrap_tag( 'h3', $project-> ProjectName) .
     wrap_tag( 'p', "[{$project-> ProjectNr}]" ) . 
     wrap_tag( 'p', "Type: {$project-> ProjectType}" ) . 
     wrap_tag( 'p', "Coach: {$project-> Coach}" ), 
