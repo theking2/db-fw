@@ -36,7 +36,7 @@ sendResponse($response);
 /**
  * CHeck if a the request contains a valid entity name
  *
- * @param  ar $uri
+ * @param  array $uri
  * @return void
  */
 function isEntityValid( ?string $entity ) {
@@ -55,8 +55,7 @@ function parseParameters( ?string $param ) {
   if( !isset($uri[2]) )  {
     $param = explode('&', $param);
     $result = [];
-    foreach( $param as $param )
-    {
+    foreach( $param as $param ) {
       $param = explode('=', $param);
       $result[$param[0]] = '*'. str_replace('*','%',$param[1]); // use the like operator
     }
@@ -116,7 +115,7 @@ function doGet(array $uri): array
   if( isset($uri[2]) and is_array($uri[2]) ) {
     $where = [];
     foreach( $uri[2] as $key => $value ) {
-      $where[$key] = $value;
+      $where[$key] = urldecode( $value );
     }
     $obj = new $uri[1]();
     $obj-> setWhere($where);
@@ -151,7 +150,7 @@ function doCreate(array $uri): array
   $obj = $uri[1]::createFromArray($input);
   if( $obj-> freeze() ) {
     $response['status_code_header'] = 'HTTP/1.1 201 Created';
-    $response['body'] = json_encode( ['id'=> $obj-> getKeyValue() ] );
+    $response['body'] = json_encode( [ 'id'=> $obj-> getKeyValue() ] );
   } else {
     $response['status_code_header'] = 'HTTP/1.1 500 Internal Server Error';
   }
