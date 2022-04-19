@@ -12,7 +12,7 @@ echo wrap_tag('h1', $eq->Name);
 echo wrap_tag('p', $eq-> Number);
 echo wrap_tag('p', $eq-> Description);
 ?>
-<a href="./">Zurück</a>
+<a href="./equipment-list">Zurück</a>
 </section>
 
 <?php

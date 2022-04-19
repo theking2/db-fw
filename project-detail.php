@@ -8,8 +8,8 @@ require_once './inc/util.php';
 <section class="project-detail" style="width:400px;margin:auto">
 <?php
 $project = new \NeueMedien\project();
-$project-> thaw((int)$_GET['pid']);
-?>
+if( $project-> thaw((int)$_GET['pid']) ) : ?>
+
 <h1><?= $project-> Name ?></h1>
 <input type="hidden" id="pid" value="<?= $project-> ID ?>">
 <label for="project-nr">Projektnummer</label><input type="text" id="project-nr" value="<?= $project-> Number ?>" readonly>
@@ -30,8 +30,10 @@ foreach( new \NeueMedien\teacher() as $coachID => $coach ){
 ?>
 <label for="description">Beschreibung:</label><textarea id="description" name="description"><?=$project-> Description;?></textarea>
 
+
 <a href="./">Zurück</a>
 </section>
+<script src="./assets/js/autocomplete.js"></script>
 <script>
   document.getElementById('project-type').onchange = async ev=> {
     const projectID = document.getElementById('pid').value;
@@ -68,5 +70,9 @@ foreach($details as $id=> $detail) {?>
       <?= $detail->Fullname ?>
       (<?= $detail-> Role?>)</li>
   </ul>
-<?php  }
-   
+
+<?php 
+}
+else : ?>
+<p>Das Projekt konnte nicht gefunden werden.</p>
+<?php endif; ?>
