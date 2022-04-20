@@ -44,14 +44,14 @@ html {
 html {
   font-family: 'Cadman';
 }
-.project-list {
+.object-list {
   display: grid;
   grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
   gap: 15px;
   margin: 5px;
 }
 
-.project-tile {
+.object-tile {
   display: block;
   height: 10em;
   width:  300px;
@@ -82,7 +82,7 @@ html {
 }
 
 /* Do an horizontal flip when you move the mouse over the flip box container */
-.project-tile:hover .flip-card-inner {
+.object-tile:hover .flip-card-inner {
   transform: rotateY(180deg);
 }
 

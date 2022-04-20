@@ -29,8 +29,8 @@ final class equipment_reservation
 			'ID'                 => ['int', 10 ],
 			'EquipmentID'        => ['int', 10 ],
 			'StudentID'          => ['int', 10 ],
-			'Start'              => ['\DateTime', 0 ],
-			'End'                => ['\DateTime', 0 ],
+			'Start'              => ['Date', 0 ],
+			'End'                => ['Date', 0 ],
 		];
 	}
 }

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./assets/style/main.css">
+  <title>Reservation</title>
+</head>
+
+<body>
+
+  <form autocomplet="off" action="#" style="width:300px;margin:auto;">
+    <div class="autocomplete" style="width:300px;">
+      <input name="equipment" id="equipment" placeholder="Equipment">
+      <input type="hidden" name="equipment-id" id="equipment-id" value="">
+    </div>
+    <div class="autocomplete" style="width:300px;">
+      <input name="student" id="student" placeholder="Lernpartner">
+      <input type="hidden" name="student-id" id="student-id" value="">
+    </div>   
+    <!-- <label for="ProjectID">ProjektID</label><input name="ProjectID" id="ProjectID" value="205"><br> -->
+    <!-- <label for="StudentID">LP</label><input name="StudentID" id="StudentID" value="29"><br> -->
+    <input type="date" id="start"><br>
+    <input type="date" id="end"><br>
+
+    <button id="add">insert</button><br>
+    <p id="message"></p>
+
+  </form>
+  <table id="reservations" border="1">
+    <thead>
+      <tr><th>Was<th>nr<th>Wem<th>Von<th>Bis
+    </thead>
+  </table>
+
+</body>
+<script>
+  document.addEventListener('DOMContentLoaded', e => {
+    const equipmentIDField = document.getElementById('equipment-id');
+    const studentIDField = document.getElementById('student-id');
+    const startField = document.getElementById('start');
+    const endField = document.getElementById('end');
+
+    let message = document.getElementById('message'); "";
+
+    document.getElementById('add').addEventListener('click', async ev => {
+      ev.preventDefault();
+      const reservation = {
+        EquipmentID: equipmentIDField.value,
+        StudentID: studentIDField.value,
+        Start: startField.value,
+        End: endField.value
+      };
+
+      let id = null;
+      let url = `/equipment_reservation?EquipmentID=${reservation.EquipmentID}&StudentID=${reservation.StudentID}&Start=${reservation.Start}`;
+      let response = await fetch(url);
+      if (!response.ok) {
+        message.innerHTML = `Fehler: ${response.status}`;
+      } else if (response.status === 200) {
+        result = await response.json();
+        id = result[0].ID;
+      }
+
+      const body = JSON.stringify({ reservation });
+
+      let request;
+      if (id) {
+        url = `/equipment_reservation/${id}`;
+        request = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: body
+        };
+      } else {
+        url = '/equipment_reservation';
+        request = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body
+        };
+      }
+      response = await fetch(url, request);
+      if (!response.ok) {
+        message.textContent = `Fehler: ${response.status}`;
+      } else {
+        message.textContent = `${response.status}: ${response.statusText}`;
+      }
+
+      updateReservation(reservation.EquipmentID);
+    })
+  });
+  async function updateReservation(id) {
+    const timeSheet = document.getElementById('reservations');
+    timeSheet.innerHTML = '';
+    const response = await fetch(`/reservationview?EquipmentID=${id}`);
+    const data = await response.json();
+    data.forEach( row => {
+      const tr = document.createElement('tr');
+      tr.dataset.id = row.ID
+      let td = document.createElement('td');
+      td.textContent = row.Equipment;
+      tr.appendChild(td);
+      td = document.createElement('td');
+      td.textContent = row.Number;
+      tr.appendChild(td);
+      td = document.createElement('td');
+      td.textContent = row.Fullname;
+      tr.appendChild(td);
+      td = document.createElement('td');
+      td.textContent = row.Start;
+      tr.appendChild(td);
+      td = document.createElement('td');
+      td.textContent = row.End;
+      tr.appendChild(td);
+      timeSheet.appendChild(tr);
+    });
+  }
+
+</script>
+
+<script>
+  autocomplete = (input, inputID, ajaxUrl, fieldName) => {
+    let currentFocus = -1;
+
+    input.addEventListener('input', async function(e) {
+      let a, i, val = input.value;
+      closeAllLists();
+      if (val.length > 0) {
+        const result = await fetch( ajaxUrl + val + '*' );
+        const data = await result.json();
+        const list = document.getElementById('select-list');
+
+        const a = document.createElement('div');
+        a.setAttribute('id', this.id + 'autocomplete-list');
+        a.setAttribute('class', 'autocomplete-items');
+        input.parentNode.appendChild(a);
+
+        let i = 10;
+        data.every(project => {
+          const b = document.createElement('div');
+          b.innerHTML = project[fieldName];
+          b.dataset.id = project.ID;
+          b.addEventListener('click', e => {
+            inputID.value = b.dataset.id;
+            input.value = b.innerHTML;
+            closeAllLists();
+          });
+          a.appendChild(b);
+          return (i--);
+        });
+      }
+    });
+
+
+    input.addEventListener("keydown", function (e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        currentFocus++;
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        currentFocus--;
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        e.preventDefault();
+        if (currentFocus > -1) {
+          if (x) x[currentFocus].click();
+        }
+      }
+    });
+
+    /**
+     * 
+     * @param {HTMLElement[]} x
+     */
+    function addActive(x) {
+      if (!x) return false;
+      removeActive(x);
+      if (currentFocus >= x.length) currentFocus = 0;
+      if (currentFocus < 0) currentFocus = (x.length - 1);
+      x[currentFocus].classList.add("autocomplete-active");
+    }
+    /**
+     * Remove active class from all autocomplete items
+     */
+    function removeActive(x) {
+      [].forEach.call(x, item => {
+        item.classList.remove("autocomplete-active");
+      });
+    }
+    /**
+     * Close all autocomplete lists in the document, except the one passed as an argument.
+     * 
+     * @param {HTMLElement} node - The node to ignore.
+     */
+    function closeAllLists(elmnt) {
+      const x = document.getElementsByClassName("autocomplete-items");
+      [].forEach.call(x, item => {
+        if (elmnt != item && elmnt != input) {
+          item.parentNode.removeChild(item);
+        }
+      });
+    }
+    /*execute a function when someone clicks in the document:*/
+    document.addEventListener("click", function (e) {
+      closeAllLists(e.target);
+    });
+
+  };
+
+  autocomplete(document.getElementById("equipment"), document.getElementById("equipment-id"), '/equipment?Name=', 'Name');
+  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?Fullname=', 'Fullname');
+</script>
+
+</html>

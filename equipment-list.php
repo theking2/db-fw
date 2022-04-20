@@ -13,10 +13,10 @@ require_once './inc/util.php';
   <title>Equipment</title>
 </head>
 <body>
-<section class="project-list">
+<section class="object-list">
 <?php
 foreach( new \NeueMedien\equipmentview() as $eID => $equipment ){
-  echo "<a class='project-tile' href=equipment-detail.php?pid=$eID>";
+  echo "<a class='object-tile' href=equipment-detail.php?pid=$eID>";
   echo wrap_tag('div',
     wrap_tag( 'h2', $equipment-> Name ) .
     wrap_tag( 'p', "[{$equipment-> Number}]" ) .

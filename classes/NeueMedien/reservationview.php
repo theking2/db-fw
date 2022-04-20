@@ -4,7 +4,8 @@ namespace NeueMedien;
 /**
  * reservationview – Persistant DB object
  * int       $ID
- * string    $Name;
+ * int       $EquipmentID
+ * string    $Equipment;
  * string    $Number;
  * string    $Fullname;
  * \DateTime $Start;
@@ -17,7 +18,8 @@ final class reservationview
 	use \Persist\IteratorTrait, \DB\DBPersistTrait;
 
 	protected ?int       $ID;
-	protected ?string    $Name;
+	protected ?int       $EquipmentID;
+	protected ?string    $Equipment;
 	protected ?string    $Number;
 	protected ?string    $Fullname;
 	protected ?\DateTime $Start;
@@ -29,11 +31,12 @@ final class reservationview
 	static public function getFields():array {
 		return [
 			'ID'                 => ['int', 10 ],
-			'Name'               => ['string', 45 ],
+			'EquipmentID'        => ['int', 10 ],
+			'Equipment'          => ['string', 45 ],
 			'Number'             => ['string', 6 ],
 			'Fullname'           => ['string', 250 ],
-			'Start'              => ['\DateTime', 0 ],
-			'End'                => ['\DateTime', 0 ],
+			'Start'              => ['Date', 0 ],
+			'End'                => ['Date', 0 ],
 		];
 	}
 }
