@@ -13,10 +13,10 @@ require_once './inc/util.php';
 </head>
 <body>
 
-<section class="project-list">
+<section class="object-list">
 <?php
 foreach( new \NeueMedien\projectview() as $projectID => $project ){
-  echo "<div class='project-tile' href='project-detail.php?pid=$projectID'>";
+  echo "<div class='object-tile' href='project-detail.php?pid=$projectID'>";
   echo "<div class='flip-card-inner'>";
   echo wrap_tag('div', wrap_tag( 'h1', $project-> ProjectName), 'flip-card-front');
   echo wrap_tag('div',
@@ -33,9 +33,9 @@ foreach( new \NeueMedien\projectview() as $projectID => $project ){
   
 </body>
 <script>
-  var projectList = document.querySelector('.project-list');
+  var projectList = document.querySelector('.object-list');
   projectList.addEventListener('click', function(e){
-    const projectTile = e.target.closest('.project-tile');
+    const projectTile = e.target.closest('.object-tile');
     if(projectTile){
       e.preventDefault();
       window.location.href = projectTile.getAttribute('href');

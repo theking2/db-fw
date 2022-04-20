@@ -4,7 +4,7 @@ require '../inc/util.php';
 $allowed = ['test', 'project', 'projectview', 'address', 'country'
 , 'projectrole', 'projecttype', 'student', 'studentrole', 'studentroleproject'
 , 'teacher', 'timesheet', 'timesheetview', 'user'
-, 'equipment', 'equipmentview', 'reservation', 'reservationview'];	
+, 'equipment', 'equipmentview', 'reservationview', 'equipment_reservation'];	
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
