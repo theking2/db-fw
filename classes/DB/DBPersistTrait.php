@@ -4,6 +4,7 @@ namespace DB;
 trait DBPersistTrait
 {
 	private array $_where = [];
+	private array $_order = [];
 	private array $_insert_buffer = [];
 
 
@@ -335,7 +336,20 @@ trait DBPersistTrait
   } 
   /* #endregion Traversal */
 
-  /* #region whereByExample */
+	/* #region Order */
+	public function setOrder( array $order )
+	{
+		$this->_order = $order;
+	}
+	/* #endregion Srder */
+
+  /* #region whereByExample */	
+	/**
+	 * array of fields/values to select by
+	 *
+	 * @param  mixed $where
+	 * @return void
+	 */
 	public function setWhere(array $where):void {
 		$this-> _where = $where;
 	}
