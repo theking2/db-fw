@@ -7,14 +7,21 @@
   <title>Test Insert</title>
 </head>
 <body>
+  <div>
   <input type="text" id="name">
-  <input type="number" id="groese">
+  <input type="number" id="groese" step="0.05" min="1.60" max="2.60">
   <input type="date" id="date">
-  <button id="del">add</button>
+  <button id="ins">add</button>
+  </div>
+
+  <div>
+  <input type="text" id="iso" placeholder="Kürzel" minlength="3" maxlength="3">
+  <input type="text" id="country" placeholder="Land">
+  <button id="ins-land">add</button>
+  </div>  
 </body>
 <script>
-  const id = document.getElementById('id');
-  const del = document.getElementById('del').addEventListener('click', async ev=>{
+  const ins = document.getElementById('ins').addEventListener('click', async ev=>{
     const response = await fetch(`/test`, {
       method: 'POST',
       body: JSON.stringify({
@@ -34,5 +41,27 @@
     }
     alert(message);
   });
+
+  const del = document.getElementById('ins-land').addEventListener('click', async ev=>{
+    const response = await fetch(`/country`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ISO: document.getElementById('ISO').value,
+        Country: document.getElementById('country').value
+      })
+    });
+    if( !response.ok ) {
+      const message = `Error: ${response.status}`;
+    } else if( 200 <= response.status && response.status <= 299 ) {
+      //success
+      result = await response.json();
+      message = `${response.statusText} ${result.id} `;
+    } else {
+      const message = `Error: ${response.statusText}`;
+    }
+    alert(message);
+  });
+
+
 </script>
 </html>
