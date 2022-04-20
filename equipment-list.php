@@ -1,8 +1,18 @@
-<?php
-require_once './inc/util.php';
+<?php declare(strict_types=1);
 
+require_once './inc/util.php';
 ?>
-<link rel="stylesheet" href="./assets/style/main.css">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./assets/style/main.css">
+  <title>Equipment</title>
+</head>
+<body>
 <section class="project-list">
 <?php
 foreach( new \NeueMedien\equipmentview() as $eID => $equipment ){
@@ -15,3 +25,6 @@ foreach( new \NeueMedien\equipmentview() as $eID => $equipment ){
 } 
 ?>
 </section>
+  
+</body>
+</html>
