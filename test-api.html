@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="./assets/js/main.js"></script>
   <title>Test API</title>
 </head>
 
@@ -31,15 +31,10 @@
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', e => {
-    const id = document.getElementById('id');
-    let message = document.getElementById('message');"";
+    const id = $('#id');
+    let message = $('#message');"";
 
-    // (async () => {
-    //   const response = await fetch('/test');
-    //   const data = await response.json();
-    // })();
-
-    document.getElementById('get').addEventListener('click', async ev => {
+    $('#get').addEventListener('click', async ev => {
       const response = await fetch(`/test/${id.value}`, { method: 'GET'} );
       if (!response.ok) {
         message.textContent = `Error: ${response.status}`;
@@ -47,22 +42,22 @@
         //success
         result = await response.json();
         message.textContent = `${response.statusText} ${id.value} `;
-        document.getElementById('name').value = result.Name;
-        document.getElementById('groesse').value = result.groesse;
-        document.getElementById('date').value = result.Date;
+        $('#name').value = result.Name;
+        $('#groesse').value = result.groesse;
+        $('#date').value = result.Date;
 
       } else {
         message.textContent = `Error: ${response.statusText}`;
       }
     });
 
-    document.getElementById('add').addEventListener('click', async ev => {
+    $('#add').addEventListener('click', async ev => {
       const response = await fetch(`/test`, {
         method: 'POST',
         body: JSON.stringify({
-          Name: document.getElementById('name').value,
-          groesse: parseFloat(document.getElementById('groesse').value),
-          Date: document.getElementById('date').value
+          Name: $('#name').value,
+          groesse: parseFloat($('#groesse').value),
+          Date: $('#date').value
         })
       });
       if (!response.ok) {
@@ -77,13 +72,13 @@
       }
     });
 
-    document.getElementById('update').addEventListener('click', async ev => {
+    $('#update').addEventListener('click', async ev => {
       const response = await fetch(`/test/${id.value}`, {
         method: 'PUT',
         body: JSON.stringify({
-          Name: document.getElementById('name').value,
-          groesse: parseFloat(document.getElementById('groesse').value),
-          Date: document.getElementById('date').value
+          Name: $('#name').value,
+          groesse: parseFloat($('#groesse').value),
+          Date: $('#date').value
         })
       });
 
@@ -98,7 +93,7 @@
       }
     });
 
-    document.getElementById('del').addEventListener('click', async ev => {
+    $('#del').addEventListener('click', async ev => {
       const response = await fetch(`/test/${id.value}`, { method: 'DELETE' });
       if (!response.ok) {
         message.textContent = `Error: ${response.status}`;

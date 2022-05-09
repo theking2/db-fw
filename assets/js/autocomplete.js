@@ -27,6 +27,8 @@ const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
             inputID.value = b.dataset.id;
             input.value = b.innerHTML;
             closeAllLists();
+
+            inputID.dispatchEvent(new Event('change'));
           });
           a.appendChild(b);
           return (i--);
@@ -95,6 +97,8 @@ const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
     if (currentFocus >= x.length) currentFocus = 0;
     if (currentFocus < 0) currentFocus = (x.length - 1);
     x[currentFocus].classList.add("autocomplete-active");
+
+    inputID.dispatchEvent(new Event('change'));
   }
   /**
    * Remove active class from all autocomplete items

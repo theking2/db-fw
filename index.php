@@ -1,47 +1,50 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 require_once './inc/util.php';
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./assets/style/main.css">
+  <script src="./assets/js/main.js"></script>
   <title>Projekten</title>
 </head>
+
 <body>
 
-<section class="object-list">
-<?php
-foreach( new \NeueMedien\projectview() as $projectID => $project ){
-  echo "<div class='object-tile' href='project-detail.php?pid=$projectID'>";
-  echo "<div class='flip-card-inner'>";
-  echo wrap_tag('div', wrap_tag( 'h1', $project-> ProjectName), 'flip-card-front');
-  echo wrap_tag('div',
-    wrap_tag( 'h3', $project-> ProjectName) .
-    wrap_tag( 'p', "[{$project-> ProjectNr}]" ) . 
-    wrap_tag( 'p', "Type: {$project-> ProjectType}" ) . 
-    wrap_tag( 'p', "Coach: {$project-> Coach}" ), 
-    'flip-card-back');
-  echo "</div>";	
-  echo "</div>";
-} 
-?>
-</section>
-  
+  <section class="object-list">
+    <?php
+    foreach (new \NeueMedien\projectview() as $projectID => $project) { ?>
+      <div class='object-tile' href='project-detail.php?pid=<?= $projectID ?>'>
+        <div class='flip-card-inner'>
+          <div class='flip-card-front'>
+            <h1><?= $project->ProjectName ?>
+          </div>
+          <div class='flip-card-back'>
+            <h3><?= $project->ProjectName ?>
+            <p><?=$project->ProjectNr?>
+            <p>Type: <?=$project->ProjectType?>
+            <p>Coach: <?=$project->Coach?>
+          </div>
+        </div>
+      </div>
+    <?php } ?>
+  </section>
+
 </body>
 <script>
-  var projectList = document.querySelector('.object-list');
-  projectList.addEventListener('click', function(e){
+  $('.object-list').addEventListener('click', function(e) {
     const projectTile = e.target.closest('.object-tile');
-    if(projectTile){
+    if (projectTile) {
       e.preventDefault();
       window.location.href = projectTile.getAttribute('href');
     }
   });
-
-
 </script>
+
 </html>

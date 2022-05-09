@@ -7,6 +7,7 @@ namespace NeueMedien;
  * int       $EquipmentID
  * string    $Equipment;
  * string    $Number;
+ * int       $StudentID;
  * string    $Fullname;
  * \DateTime $Start;
  * \DateTime $End;
@@ -21,6 +22,7 @@ final class reservationview
 	protected ?int       $EquipmentID;
 	protected ?string    $Equipment;
 	protected ?string    $Number;
+	protected ?int       $StudentID;
 	protected ?string    $Fullname;
 	protected ?\DateTime $Start;
 	protected ?\DateTime $End;
@@ -34,6 +36,7 @@ final class reservationview
 			'EquipmentID'        => ['int', 10 ],
 			'Equipment'          => ['string', 45 ],
 			'Number'             => ['string', 6 ],
+			'StudentID'          => ['int', 10 ],
 			'Fullname'           => ['string', 250 ],
 			'Start'              => ['Date', 0 ],
 			'End'                => ['Date', 0 ],

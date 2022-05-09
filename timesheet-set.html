@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./assets/style/main.css">
+  <link href="./assets/style/main.css" rel="stylesheet">
+  <script src="./assets/js/main.js"></script>
   <title>Test API</title>
 </head>
 
@@ -28,22 +29,25 @@
     <button id="add">insert</button><br>
     <p id="message"></p>
 
-    <table id="time-sheet"></table>
   </form>
+    <table id="time-sheet">
+      <thead><tr><th>Projekt</th><th>Datum</th><th>Minuten</th></tr></thead>
+      <tbody></tbody>
+    </table>
 
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', e => {
-    const project = document.getElementById('Project');
-    const id = document.getElementById('id');
-    let message = document.getElementById('message'); "";
+    const project = $('#Project');
+    const id = $('#id');
+    let message = $('#message'); "";
 
-    document.getElementById('add').addEventListener('click', async ev => {
+    $('#add').addEventListener('click', async ev => {
       ev.preventDefault();
-      const projectID = document.getElementById('project-id').value;
-      const studentID = document.getElementById('student-id').value;
-      const date = document.getElementById('date').value;
-      const minutes = document.getElementById('minutes').value;
+      const projectID = $('#project-id').value;
+      const studentID = $('#student-id').value;
+      const date = $('#date').value;
+      const minutes = $('#minutes').value;
 
       let id = null;
       let url = `/timesheet?ProjectID=${projectID}&StudentID=${studentID}&Date=${date}`;
@@ -89,31 +93,26 @@
   });
 
   async function updateTimeSheet(id) {
-    const timeSheet = document.getElementById('time-sheet');
+    const timeSheet = document.querySelector('#time-sheet tbody');
     timeSheet.innerHTML = '';
     const response = await fetch(`/timesheetview?StudentID=${id}`);
     const data = await response.json();
+
     data.forEach( row => {
       const tr = document.createElement('tr');
-      tr.dataset.id = row.ID
-      let td = document.createElement('td');
-      td.textContent = row.ProjectName;
-      tr.appendChild(td);
-      td = document.createElement('td');
-      td.textContent = row.Date;
-      tr.appendChild(td);
-      td = document.createElement('td');
-      td.textContent = row.Minutes;
-      tr.appendChild(td);
-      timeSheet.appendChild(tr);
+      const tableRow = timeSheet.insertRow();
+      tableRow.dataset.id = row.ProjectID;
+      tableRow.insertCell().textContent = row.ProjectName;
+      tableRow.insertCell().textContent = row.Date;
+      tableRow.insertCell().textContent = row.Minutes;
     });
   }
 
 </script>
 <script src="./assets/js/autocomplete.js"></script>
 <script>
-  autocomplete(document.getElementById("project"), document.getElementById("project-id"), '/project?Name=', 'Name');
-  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?Fullname=', 'Fullname');
+  autocomplete($('#project'), $('#project-id'), '/project?Name=', 'Name');
+  autocomplete($('#student'), $('#student-id'), '/student?Fullname=', 'Fullname');
 </script>
 
 </html>
