@@ -21,8 +21,6 @@
       <input name="student" id="student" placeholder="Lernpartner">
       <input type="hidden" name="student-id" id="student-id" value="">
     </div>
-    <!-- <label for="ProjectID">ProjektID</label><input name="ProjectID" id="ProjectID" value="205"><br> -->
-    <!-- <label for="StudentID">LP</label><input name="StudentID" id="StudentID" value="29"><br> -->
     <input type="date" id="date"><br>
     <input type="number" id="minutes" min="15" max="240" step="15" placeholder="Minuten"><br>
 
@@ -113,6 +111,11 @@
 <script>
   autocomplete($('#project'), $('#project-id'), '/project?Name=', 'Name');
   autocomplete($('#student'), $('#student-id'), '/student?Fullname=', 'Fullname');
+
+  $('#student-id').addEventListener('change', e => {
+    updateTimeSheet($('#student-id').value);
+  });
+
 </script>
 
 </html>

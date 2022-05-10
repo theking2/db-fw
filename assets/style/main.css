@@ -49,12 +49,11 @@ html {
 }
 
 #time-sheet {
-   width:50vw;
+   width:30vw;
    margin:2em auto;
 }
 
 #time-sheet tr {
-  background-color: var(--color-secondary);
   border-color: var(--color-secondary);
 }
 

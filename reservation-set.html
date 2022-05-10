@@ -37,20 +37,20 @@
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', e => {
-    $('#student-id').addEventListener('change', e => {
-      updateReservation($('#student-id').value);
+    $('#equipment-id').addEventListener('change', e => {
+      updateReservation($('#equipment-id').value);
     });
 
-    let message = document.getElementById('message'); "";
+    let message = $('#message'); "";
 
-    document.getElementById('add').addEventListener('click', async ev => {
+    $('#add').addEventListener('click', async ev => {
       ev.preventDefault();
 
       const reservation = {
-        EquipmentID: document.getElementById('equipment-id').value,
-        StudentID: document.getElementById('student-id').value,
-        Start: document.getElementById('start').value,
-        End: document.getElementById('end').value,
+        EquipmentID: $('#equipment-id').value,
+        StudentID: $('#student-id').value,
+        Start: $('#start').value,
+        End: $('#end').value,
       };
 
       let id = null;
@@ -89,7 +89,8 @@
   });
   async function updateReservation(id) {
     const table = $('#reservations tbody');
-    const response = await fetch(`/reservationview?StudentID=${id}`);
+    table.innerHTML = '';
+    const response = await fetch(`/reservationview?EquipmentID=${id}`);
 
     if(response.ok) {
       const data = await response.json();
@@ -109,8 +110,8 @@
 
 <script src="./assets/js/autocomplete.js"></script>
 <script>
-  autocomplete(document.getElementById("equipment"), document.getElementById("equipment-id"), '/equipment?Name=', 'Name');
-  autocomplete(document.getElementById("student"), document.getElementById("student-id"), '/student?Fullname=', 'Fullname');
+  autocomplete($("#equipment"), $("#equipment-id"), '/equipment?Name=', 'Name');
+  autocomplete($("#student"), $("#student-id"), '/student?Fullname=', 'Fullname');
 </script>
 
 </html>

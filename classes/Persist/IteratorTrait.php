@@ -9,7 +9,8 @@ trait IteratorTrait {
   private bool $valid = false;
   
 	public function current ( ): object { return $this; }
-	public function key ( ): mixed	{ return $this-> {$this->getPrimaryKey()} ; }
+	#[\ReturnTypeWillChange]
+	public function key ( )	{ return $this-> {$this->getPrimaryKey()} ; }
 	public function valid ( ): bool { return $this-> valid; }
 	public function next ( ): void { $this-> findNext(); }
 	public function rewind ( ): void { $this-> findFirst(); }

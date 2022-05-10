@@ -16,6 +16,13 @@ require_once './inc/util.php';
 </head>
 
 <body>
+  <nav>
+    <a href="./index.php">Home</a>
+    <a href="./timesheet-set.html">Zeiterfassung</a>
+    <a href="./equipment-list.php">Equipment</a>
+    <a href="./equipment-list.php">Equipment</a>
+    <a href="./index.php">Home</a>
+  </nav>
 
   <section class="object-list">
     <?php
