@@ -24,11 +24,12 @@ if( $param ) {
 $uri[1] = __NAMESPACE__ . '\\' . $uri[1];
 
 switch($requestMethod) {
-  case 'GET':    $response = doGet($uri);               break;
-  case 'POST':   $response = doCreate($uri);              break;
-  case 'PUT':    $response = doUpdate($uri);               break;
-  case 'DELETE': $response = doDelete($uri);            break;
-  default:       $response = $this->notFoundResponse(); break;
+  case 'GET':     $response = doGet($uri);     break;
+  case 'POST':    $response = doCreate($uri);  break;
+  case 'PUT':     $response = doUpdate($uri);  break;
+  case 'DELETE':  $response = doDelete($uri);  break;
+  case 'OPTIONS': $response = okResponse();   break;
+  default:        $response = notFoundResponse(); break;
 }
 
 sendResponse($response);
@@ -210,6 +211,20 @@ function doDelete(array $uri): array
   return notFoundResponse();
 }
 
+
+/**
+ * create 200 Response
+ *
+ * @return array
+ */
+function okResponse(): array
+{
+
+  $response['status_code_header'] = 'HTTP/1.1 200 OK';
+  $response['body'] = null;
+
+  return $response;
+}
 /**
  * Create a 404 response
  *
