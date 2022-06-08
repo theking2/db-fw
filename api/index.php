@@ -151,7 +151,7 @@ function doCreate(array $uri): array
   $obj = $uri[1]::createFromArray($input);
   if( $obj-> freeze() ) {
     $response['status_code_header'] = 'HTTP/1.1 201 Created';
-    $response['body'] = json_encode( [ 'id'=> $obj-> getKeyValue() ] );
+    $response['body'] = json_encode( [ 'id'=> $obj-> getKeyValue(), 'result'=> 'created' ] );
   } else {
     $response['status_code_header'] = 'HTTP/1.1 500 Internal Server Error';
   }
