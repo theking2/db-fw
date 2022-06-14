@@ -5,7 +5,7 @@ namespace NeueMedien;
  * test – Persistant DB object
  * int       $test_ID;
  * string    $Name;
- * float     $groesse;
+ * float     $Size;
  * \DateTime $Date;
  */
 final class test
@@ -16,7 +16,7 @@ final class test
 
 	protected ?int       $test_ID;
 	protected ?string    $Name;
-	protected ?float     $groesse;
+	protected ?float     $Size;
 	protected ?\DateTime $Date;
 
 	// Persist functions
@@ -26,7 +26,7 @@ final class test
 		return [
 			'test_ID'            => ['int', 10 ],
 			'Name'               => ['string', 255 ],
-			'groesse'            => ['float', 0 ],
+			'Size'            => ['float', 0 ],
 			'Date'               => ['Date', 0 ],
 		];
 	}

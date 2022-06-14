@@ -18,7 +18,7 @@ echo "
 
 $obj = new \NeueMedien\test();
 $name = $obj-> Name = chr(rand(40,90));
-$obj-> groesse = 1.60+rand(0,3);
+$obj-> size = 1.60+rand(0,3);
 $obj-> freeze();
 
 // $obj-> Name = "=$name";
@@ -30,7 +30,7 @@ $obj-> freeze();
 // for( $i=100000; $i>0; $i-- ) {
 //   $obj = new \NeueMedien\test();
 //   $obj-> Name = chr(rand(40,90));
-//   $obj-> groesse = 1.60+rand(0,30)/100;
+//   $obj-> size = 1.60+rand(0,30)/100;
 //   $obj-> freeze();
 // }
 $s = "0000-0-0 00:00:00";
@@ -43,14 +43,14 @@ foreach($obj as $test ) {
   echo "
   <pre>
   {$test-> Name}
-  {$test-> groesse}
+  {$test-> size}
   {$test-> Date-> format('d.m.Y')}
   </pre>";
 }
   
 
 // $obj = new \NeueMedien\test();
-// $obj-> setWhere( ["groesse" => ">1.62"]);
+// $obj-> setWhere( ["size" => ">1.62"]);
 // foreach( $obj as $id=> $obj) {
 //   $obj-> delete();
 // }

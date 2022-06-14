@@ -3,15 +3,18 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initia`l-scale=1.0">
   <script src="./assets/js/main.js"></script>
   <title>Test API</title>
 </head>
 
 <body>
   <p id="message"></p>
+  <label for="name">Name</label>
   <input type="text" id="name">
-  <input type="number" id="groesse">
+  <label for="size">Schuhgrösse</label>
+  <input type="number" id="size">
+  <label for="date">Geburtsdatum</label>
   <input type="date" id="date"><br>
   <button id="add">insert</button><br>
 
@@ -20,22 +23,68 @@
   <button id="del">delete</button>
   <button id="update">update</button>
 
-<template>
-  <tr>
-    <td id="tab-id">
-    <td id="tab-name">
-    <td id="tab-groesse">
-    <td id="tab-date">
-  </tr>
-</template>
+  <table id="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Schuhgrösse</th>
+        <th>Geburtsdatum</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  
+  <template id="template">
+    <tr>
+      <td id="tab-id">
+      <td id="tab-name">
+      <td id="tab-size">
+      <td id="tab-date">
+    </tr>
+  </template>
+
 </body>
+
 <script>
+  const getRequestBody = _ => {
+    return {
+      Name: $('#name').value,
+      Size: parseFloat($('#size').value),
+      Date: $('#date').value
+    }
+  };
+
+  const fillTable = async (tableID, templateID) => {
+    const table = $(tableID);
+    const template = $(templateID);
+    const tr = template.content.querySelector('tr');
+    const tbody = table.querySelector('tbody');
+    const response = await fetch( `/test)` );
+    if( !response.ok ) {
+      message.textContent = `Error: ${response.status}`;
+    } else {
+      const data = await response.json();
+      data.forEach(row => {
+        const clone = tr.cloneNode(true);
+        clone.querySelector('#tab-id').textContent = row.test_ID;
+        clone.querySelector('#tab-name').textContent = row.Name;
+        clone.querySelector('#tab-size').textContent = row.Size;
+        clone.querySelector('#tab-date').textContent = row.Date;
+        tbody.appendChild(clone);
+      });
+    }
+  };
+
   document.addEventListener('DOMContentLoaded', e => {
+    fillTable('#table', '#template');
+
     const id = $('#id');
     let message = $('#message');"";
 
     $('#get').addEventListener('click', async ev => {
-      const response = await fetch(`/test/${id.value}`, { method: 'GET'} );
+      const response = await fetch( `${restURL}/test/${id.value}`, { method: 'GET' } );
       if (!response.ok) {
         message.textContent = `Error: ${response.status}`;
       } else if (200 <= response.status && response.status <= 299) {
@@ -43,7 +92,7 @@
         result = await response.json();
         message.textContent = `${response.statusText} ${id.value} `;
         $('#name').value = result.Name;
-        $('#groesse').value = result.groesse;
+        $('#size').value = result.Size;
         $('#date').value = result.Date;
 
       } else {
@@ -52,13 +101,10 @@
     });
 
     $('#add').addEventListener('click', async ev => {
-      const response = await fetch(`/test`, {
+      const requestBody = getRequestBody();
+      const response = await fetch( `${restURL}/test`, {
         method: 'POST',
-        body: JSON.stringify({
-          Name: $('#name').value,
-          groesse: parseFloat($('#groesse').value),
-          Date: $('#date').value
-        })
+        body: JSON.stringify(requestBody)
       });
       if (!response.ok) {
         message.textContent = `Error: ${response.status}`;
@@ -73,13 +119,10 @@
     });
 
     $('#update').addEventListener('click', async ev => {
-      const response = await fetch(`/test/${id.value}`, {
+      const requestBody = getRequestBody();
+      const response = await fetch(`${restURL}/test/${id.value}`, {
         method: 'PUT',
-        body: JSON.stringify({
-          Name: $('#name').value,
-          groesse: parseFloat($('#groesse').value),
-          Date: $('#date').value
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -94,7 +137,7 @@
     });
 
     $('#del').addEventListener('click', async ev => {
-      const response = await fetch(`/test/${id.value}`, { method: 'DELETE' });
+      const response = await fetch(`${restURL}/test/${id.value}`, { method: 'DELETE' });
       if (!response.ok) {
         message.textContent = `Error: ${response.status}`;
       } else if (200 <= response.status && response.status <= 299) {
