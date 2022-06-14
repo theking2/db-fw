@@ -2,7 +2,7 @@
 namespace NeueMedien;
 require '../inc/util.php';
 $allowed = ['test', 'project', 'projectview', 'address', 'country'
-, 'projectrole', 'projecttype', 'student', 'studentrole', 'studentroleproject'
+, 'projectrole', 'projecttype', 'student', 'studentrole', 'studentroleproject', 'studentprojectview',
 , 'teacher', 'timesheet', 'timesheetview', 'user'
 , 'equipment', 'equipmentview', 'reservationview', 'equipment_reservation'];	
 
