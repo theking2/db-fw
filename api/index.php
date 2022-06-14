@@ -1,10 +1,18 @@
 <?php declare(strict_types=1);
 namespace NeueMedien;
 require '../inc/util.php';
-$allowed = ['test', 'project', 'projectview', 'address', 'country'
-, 'projectrole', 'projecttype', 'student', 'studentrole', 'studentroleproject'
-, 'teacher', 'timesheet', 'timesheetview', 'user'
-, 'equipment', 'equipmentview', 'reservationview', 'equipment_reservation'];	
+$allowed = ['test'
+, 'student' , 'teacher', 'user'
+
+, 'project', 'address', 'country'
+, 'projectrole', 'projecttype', 'studentrole'
+, 'projectview', 'studentroleproject', 'studentprojectview'
+
+, 'timesheet', 'timesheetview'
+
+, 'equipment', 'equipment_reservation'
+, 'equipmentview', 'reservationview'
+];	
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -24,11 +32,12 @@ if( $param ) {
 $uri[1] = __NAMESPACE__ . '\\' . $uri[1];
 
 switch($requestMethod) {
-  case 'GET':    $response = doGet($uri);               break;
-  case 'POST':   $response = doCreate($uri);              break;
-  case 'PUT':    $response = doUpdate($uri);               break;
-  case 'DELETE': $response = doDelete($uri);            break;
-  default:       $response = $this->notFoundResponse(); break;
+  case 'GET':     $response = doGet($uri);     break;
+  case 'POST':    $response = doCreate($uri);  break;
+  case 'PUT':     $response = doUpdate($uri);  break;
+  case 'DELETE':  $response = doDelete($uri);  break;
+  case 'OPTIONS': $response = okResponse();   break;
+  default:        $response = notFoundResponse(); break;
 }
 
 sendResponse($response);
@@ -150,7 +159,7 @@ function doCreate(array $uri): array
   $obj = $uri[1]::createFromArray($input);
   if( $obj-> freeze() ) {
     $response['status_code_header'] = 'HTTP/1.1 201 Created';
-    $response['body'] = json_encode( [ 'id'=> $obj-> getKeyValue() ] );
+    $response['body'] = json_encode( [ 'id'=> $obj-> getKeyValue(), 'result'=> 'created' ] );
   } else {
     $response['status_code_header'] = 'HTTP/1.1 500 Internal Server Error';
   }
@@ -210,6 +219,20 @@ function doDelete(array $uri): array
   return notFoundResponse();
 }
 
+
+/**
+ * create 200 Response
+ *
+ * @return array
+ */
+function okResponse(): array
+{
+
+  $response['status_code_header'] = 'HTTP/1.1 200 OK';
+  $response['body'] = null;
+
+  return $response;
+}
 /**
  * Create a 404 response
  *
