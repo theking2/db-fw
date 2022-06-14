@@ -1,10 +1,18 @@
 <?php declare(strict_types=1);
 namespace NeueMedien;
 require '../inc/util.php';
-$allowed = ['test', 'project', 'projectview', 'address', 'country'
-, 'projectrole', 'projecttype', 'student', 'studentrole', 'studentroleproject', 'studentprojectview',
-, 'teacher', 'timesheet', 'timesheetview', 'user'
-, 'equipment', 'equipmentview', 'reservationview', 'equipment_reservation'];	
+$allowed = ['test'
+, 'student' , 'teacher', 'user'
+
+, 'project', 'address', 'country'
+, 'projectrole', 'projecttype', 'studentrole'
+, 'projectview', 'studentroleproject', 'studentprojectview'
+
+, 'timesheet', 'timesheetview'
+
+, 'equipment', 'equipment_reservation'
+, 'equipmentview', 'reservationview'
+];	
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
