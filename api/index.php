@@ -12,6 +12,10 @@ $allowed = ['test'
 
 , 'equipment', 'equipment_reservation'
 , 'equipmentview', 'reservationview'
+
+, 'task', 'taskview'
+, 'vacation', 'vacationtype', 'vacationview'
+
 ];	
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
