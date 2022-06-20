@@ -1,6 +1,34 @@
 <?php declare(strict_types=1);
 namespace NeueMedien;
 require '../inc/util.php';
+/**
+ * api has the following endpoints:
+ * Request methods allowed: GET, POST, PUT, DELETE, OPTIONS
+ * 
+ * GET: /api/index.php/<endpoint>[/<id>]
+ * - returns a list of all entries in the database or a single object
+ * 
+ * GET: /api/index.php/<endpoint>?<query>
+ * - query is a key=value pair, e.g. ?Name=foo or ?Name=foo&Age=42 or ?Name=foo*
+ * - returns a list of all entries in the database or a single object
+ *
+ * POST: /api/index.php/<endpoint>[/<id>]
+ * - creates a new entry in the database
+ * 
+ * PUT: /api/index.php/<endpoint>
+ * - updates an existing entry in the database
+ * 
+ * DELETE: /api/index.php/<endpoint>[/<id>]
+ * - deletes an entry from the database
+ * 
+ * Payload: JSON
+ * Response: JSON array or JSON object or JSON object or error message
+ */
+
+
+/**
+ * these entities are allowed, all others get a notFoundResponse
+ */
 $allowed = ['test'
 , 'student' , 'teacher', 'user'
 
