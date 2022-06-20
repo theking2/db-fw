@@ -1,0 +1,5 @@
+[db]
+host = "localhost"
+name = "project"
+user = "project"
+pass = "pm2021"

@@ -4,10 +4,14 @@ if(!defined('PATH_ROOT')) {
   define('PATH_ROOT', __DIR__ . '/../');
 }
 if( !isset($log_file) ) {
-  $log_file = PATH_ROOT.'log\project_%s.log';
+  $log_file = PATH_ROOT.'log/project_%s.log';
 }
 $log_file_handle = null;
 
+if( !$settings = parse_ini_file(PATH_ROOT.'config/settings.ini', true) ) {
+  _log('Could not load settings.ini');
+  exit(0);
+}
 /**
  * _log function for writing results or error messages
  * The function starts a new file every day and the name contains the current date.

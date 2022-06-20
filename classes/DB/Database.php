@@ -18,9 +18,11 @@ final class Database
 	 */
 	private function __construct()
 	{
-		$dsn = 'mysql:dbname=project;host=localhost';
-		$db_user = 'project';
-		$db_pass = 'pm2021';
+		global $settings;
+	
+		$dsn = "mysql:host={$settings['db']['host']};dbname={$settings['db']['name']}";
+		$db_user = $settings['db']['user'];
+		$db_pass = $settings['db']['pass'];
 		$db_options = 
 			[ \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
 			, \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_BOUND

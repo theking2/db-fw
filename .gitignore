@@ -1,3 +1,5 @@
-/discover/src/
-!/discover/src/.gitignore
+/discover/src/*
+/log/*
+!.gitkeep
 /.VSCodeCounter/
+config/settings.ini
