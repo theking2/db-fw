@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 require_once '../inc/util.php';
-if(!defined('_NAMESPAcE')) {
+if(!defined('_NAMESPACE')) {
   define('_NAMESPACE', 'NeueMedien');
 }
 
