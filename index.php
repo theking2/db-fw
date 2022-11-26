@@ -24,9 +24,7 @@ require_once './inc/util.php';
   <section class="object-list">
     <?php
     $order = ["ProjectName"=>"ASC"];
-    $where = ["ProjectName"=>"*f%"];
-    foreach (\NeueMedien\projectview::findAll( $where, $order ) as $projectID => $project) {
-    //foreach ((new \NeueMedien\projectview())-> setOrder($order)-> setWhere($where) as $projectID => $project) {
+    foreach (\NeueMedien\projectview::findAll( order:$order ) as $projectID => $project) {
     ?><div class='object-tile' href='project-detail.php?pid=<?= $projectID ?>'>
         <div class='flip-card-inner'>
           <div class='flip-card-front'>
