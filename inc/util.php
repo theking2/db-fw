@@ -32,19 +32,22 @@ function _log( $mess, $level = 'i' ) {
 
 
 
-spl_autoload_register( 'load_class' );
+
 /**
- * Class autoloader
- * namespaces are folders
- *
- * @param string $className name of the classe
- * @return void
+ * Autoloader
+ * namespaced classes are loaded from the classes folder
  */
-function load_class( $className )
-{
-	$fileName = PATH_ROOT.'classes/' . str_replace('\\', DIRECTORY_SEPARATOR,$className) . '.php';
-	require_once $fileName;
-}
+spl_autoload_register( function( string $class_name ) {
+	$class_name = str_replace('\\', '/', $class_name);
+	$filename = $_SERVER["DOCUMENT_ROOT"] . sprintf( '/classes/%s.php', $class_name );
+  if( file_exists($filename) ) {
+    require_once $filename;
+    return;
+  } else {
+    throw new Exception( sprintf( 'Could not load %s', $filename ) );
+  }
+
+});
 
 
 /**

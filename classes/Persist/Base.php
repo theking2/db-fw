@@ -4,9 +4,16 @@ namespace Persist;
 
 abstract class Base implements IPersist
 {
-
   /** string[] $_dirty contains all modified elements */
 	protected array $_dirty = [];
+
+	/** _isField test if the fieldname is valid 
+	 * @param string $fieldname
+	 * @return bool
+	 */
+	protected function _isField(string $fieldname): bool {
+		return array_key_exists($fieldname, $this-> getFields());
+	}
 
   /* #region getters/setters */  
 
@@ -17,32 +24,21 @@ abstract class Base implements IPersist
    * @return mixed
    */
   public function __get(string $field) { return $this->{$field};}
-  /**
-   * __setter for all fields
-   *
-   * @param  string $field
-   * @param  mixed $value
-   * @return void
-   */
-  public function __set(string $field, $value):void {
-		// Prepare for incorrect dates.
-		$convert_date = function( $value, $format ) {
-			if( is_null($value) ) return null;
-			if ($d = \DateTime::createFromFormat( $format, $value ) )
-				return $d; 
-			return null;
-		};
-    switch($this-> getFields()[$field][0]) {
-      default : $this-> $field = $value; break;
-      case '\DateTime' : $this-> $field = $convert_date($value, 'Y-m-d H:i:s'); break;
-      case 'Date' : $this-> $field = $convert_date($value, 'Y-m-d'); break;
-      case 'int' : $this-> $field = (int)$value; break;
-      case 'float' : $this-> $field = (float)$value; break;
-      case 'bool' : $this-> $field = (bool)$value; break;
-      case 'unsigned' : $this-> $field = (int)$value; break;
-    }
-		$this-> _dirty[] = $field;
-  }
+
+	/**
+	 * __set
+	 * @param string $field
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function __set(string $field, $value): void {
+		if( $this->_isField($field) ) {
+			$this->{$field} = $value;
+			$this->_dirty[] = $field;
+		} else {
+			throw new \Exception("Field $field does not exist");
+		}
+	}
 
   /**
    * createFromArray - Create or set from array
@@ -101,8 +97,9 @@ abstract class Base implements IPersist
 	 */
 	protected function getFieldString( string $fieldName )
 	{
+		// convert to string based on type of field
     switch($this-> getFields()[$fieldName][0]) {
-      default : return isset($this-> $fieldName) ? $this-> $fieldName : '';
+      default : return $this-> $fieldName;
       case '\DateTime' : return isset($this-> $fieldName) ? ($this-> $fieldName)-> format('Y-m-d H:i:s') : '0000-00-00 00:00:00';
       case 'Date' : return isset($this-> $fieldName) ? ($this-> $fieldName)-> format('Y-m-d') : '0000-00-00';
     }
@@ -123,7 +120,7 @@ abstract class Base implements IPersist
 	/* #endregion */
 
 	/* #region construction */
-	public function __construct( $param = null )
+	public function __construct( mixed $param = null )
 	{
 		if( !is_null( $param ) ) {
 			if( !\is_array( $param ) ) {

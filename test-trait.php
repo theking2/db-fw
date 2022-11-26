@@ -18,7 +18,7 @@ echo "
 
 $obj = new \NeueMedien\test();
 $name = $obj-> Name = chr(rand(40,90));
-$obj-> size = 1.60+rand(0,3);
+$obj-> Size = 1.60+rand(0,3);
 $obj-> freeze();
 
 // $obj-> Name = "=$name";
@@ -43,7 +43,7 @@ foreach($obj as $test ) {
   echo "
   <pre>
   {$test-> Name}
-  {$test-> size}
+  {$test-> Size}
   {$test-> Date-> format('d.m.Y')}
   </pre>";
 }
