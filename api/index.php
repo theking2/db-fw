@@ -94,9 +94,8 @@ function isEntityValid( ?string $entity ) {
 function parseParameters( ?string $param ) {
   global $uri;
   if( !isset($uri[2]) )  {
-    $param = explode('&', $param);
     $result = [];
-    foreach( $param as $param ) {
+    foreach( explode('&', $param) as $param ) {
       $param = explode('=', $param);
       $result[$param[0]] = '*'. str_replace('*','%',$param[1]); // use the like operator
     }
@@ -158,14 +157,12 @@ function doGet(array $uri): array
     foreach( $uri[2] as $key => $value ) {
       $where[$key] = urldecode( $value );
     }
-    $obj = new $uri[1]();
-    $obj-> setWhere($where);
-    foreach($obj as $o) {
+    foreach( ($uri[1])::findAll($where) as $o ) {
       $result[] = $o-> getArrayCopy();
     }
 
   } else {
-    foreach(new $uri[1] as $id=>$obj)
+    foreach( ($uri[1])::findAll() as $id=>$obj )
       $result[] = $obj-> getArrayCopy();
   }
 
