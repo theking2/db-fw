@@ -485,10 +485,19 @@ trait DBPersistTrait
 
 	/* #region whereByExample */
 	/**
-	 * array of fields/values to select by
+	 * array of fields/values to select by, the operator are the first character of the value
+	 * * \=	equal
+	 * * !	not equal
+	 * * \*	like
+	 * * <	smaller
+	 * * \>	greater
+	 * * &	bitwise and
+	 * * |	bitwise or
+	 * * ^	bitwise xor
+	 * * ~	IN value array
 	 *
 	 * @param  mixed $where
-	 * @return void
+	 * @return object
 	 */
 	public function setWhere(array $where): object
 	{
@@ -497,15 +506,6 @@ trait DBPersistTrait
 	}
 	/**
 	 * Construct sql where clause by example, the operators are
-	 * = equal
-	 * ! not equal
-	 * * like
-	 * < smaller
-	 * > greater
-	 * & bitwise and
-	 * | bitwise or
-	 * ^ bitwise xor
-	 * U IN values
 	 *
 	 * @return string SQL where clause string
 	 */
