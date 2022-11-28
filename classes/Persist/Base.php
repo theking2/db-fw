@@ -4,6 +4,10 @@ namespace Persist;
 
 abstract class Base implements IPersist
 {
+	/** @var bool $_valid true if a valid object contains valid record data */
+  protected bool $_valid;
+	public function isValid(): bool { return $this->_valid; }
+  
   /** string[] $_dirty contains all modified elements */
 	protected array $_dirty = [];
 
@@ -23,7 +27,7 @@ abstract class Base implements IPersist
    * @param  mixed $field
    * @return mixed
    */
-  public function __get(string $field) { return $this->{$field};}
+  public function __get(string $field) { return $this->{$field}; }
 
 	/**
 	 * __set
