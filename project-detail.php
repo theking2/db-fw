@@ -17,22 +17,22 @@ require_once './inc/util.php';
     <label for="project-nr">Projektnummer</label><input type="text" id="project-nr" value="<?= $project->Number ?>" readonly>
     <label for="project-type">Projekttyp</label>
     <select id="project-type">
-      <?php foreach (new \NeueMedien\projecttype() as $typeID => $type) { ?>
+      <?php foreach( \NeueMedien\projecttype::findAll() as $typeID => $type) { ?>
         <option value='<?=$typeID?>' <?=$typeID === $project->TypeID ? 'selected' : ''?> ><?=$type->Name?></option>
       <?php } ?>
     </select>
     <label for="coach">Coach</label>
     <select id="coach">
-      <?php foreach (new \NeueMedien\teacher() as $coachID => $coach) { ?>
+      <?php foreach( \NeueMedien\teacher::findAll() as $coachID => $coach) { ?>
         <option value='<?=$coachID?>' <?=$coachID === $project->Coach ? 'selected' : ''?> ><?=$coach->FullName?></option>
       <?php } ?>
       <label for="description">Beschreibung:</label>
       <textarea id="description" name="description"><?= $project->Description; ?></textarea>
       <section class="student-detail">
         <?php
-        $details = new \NeueMedien\studentprojectview();
-        $details->setWhere(['ProjectID' => '=' . $project->ID]);
-        foreach ($details as $id => $detail) { ?>
+        $where = ['ProjectID' => '=' . $project->ID];
+        $order = ['Fullname'=> "ASC"];
+        foreach (\NeueMedien\studentprojectview::findAll(where: $where, order: $order ) as $id => $detail) { ?>
           <ul>
             <li data-id="<?= $detail->StudentID ?>">
               <?= $detail->Fullname ?>

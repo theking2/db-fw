@@ -9,7 +9,7 @@ if( isset($_GET['id']) ) {
   echo json_encode($project-> getArrayCopy() );
 } else {
   $result = [];
-  foreach( new \NeueMedien\project() as $id=> $project ) {
+  foreach( \NeueMedien\project::findAll() as $id=> $project ) {
     $result[] = $project-> getArrayCopy();
   }
 

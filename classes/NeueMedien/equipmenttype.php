@@ -2,11 +2,11 @@
 namespace NeueMedien;
 
 /**
- * vacationtype – Persistant DB object
+ * equipmenttype – Persistant DB object
  * int       $ID;
  * string    $Name;
  */
-final class vacationtype
+final class equipmenttype
 	extends \Persist\Base
 	implements \Persist\IPersist
 {
@@ -17,11 +17,11 @@ final class vacationtype
 
 	// Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }
-	static public function getTableName():string { return '`vacationtype`'; }
+	static public function getTableName():string { return '`equipmenttype`'; }
 	static public function getFields():array {
 		return [
 			'ID'                 => ['int', 10 ],
-			'Name'               => ['string', 255 ],
+			'Name'               => ['string', 50 ],
 		];
 	}
 }

@@ -2,7 +2,7 @@
 
 require_once '../inc/util.php';
 if(!defined('_NAMESPACE')) {
-  define('_NAMESPACE', 'theking');
+  define('_NAMESPACE', 'NeueMedien');
 }
 
 /**
@@ -76,8 +76,8 @@ while( $table_stat->fetch() ) {
   fwrite( $fh, " */\n");
  
   fprintf( $fh, "final class %s\n\textends \\Persist\\Base\n", $table_name );
-  fwrite( $fh, "\timplements \\Persist\\IPersist, \\Iterator\n{\n", );
-  fwrite( $fh, "\tuse \\Persist\IteratorTrait, \\DB\\DBPersistTrait;\n\n" );
+  fwrite( $fh, "\timplements \\Persist\\IPersist\n{\n", );
+  fwrite( $fh, "\tuse \\DB\\DBPersistTrait;\n\n" );
 
   // Set the datatype for Date and DateTime to PHP \DateTime
   foreach( $cols as $fieldName=> $fieldDescription ) {

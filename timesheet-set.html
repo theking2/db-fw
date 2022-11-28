@@ -11,7 +11,13 @@
 </head>
 
 <body>
-
+  <nav>
+    <a href="./index.php">Home</a>
+    <a href="./timesheet-set.html">Zeiterfassung</a>
+    <a href="./equipment-list.php">Equipment</a>
+    <a href="./reservation-set.html">Reservation</a>
+    <a href="./index.php">Home</a>
+  </nav>
   <form autocomplet="off" action="#" style="width:300px;margin:auto;">
     <div class="autocomplete" style="width:300px;">
       <input name="project" id="project" placeholder="Projekt">
@@ -28,10 +34,16 @@
     <p id="message"></p>
 
   </form>
-    <table id="time-sheet">
-      <thead><tr><th>Projekt</th><th>Datum</th><th>Minuten</th></tr></thead>
-      <tbody></tbody>
-    </table>
+  <table id="time-sheet">
+    <thead>
+      <tr>
+        <th>Projekt</th>
+        <th>Datum</th>
+        <th>Minuten</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
 </body>
 <script>
@@ -96,7 +108,7 @@
     const response = await fetch(`/timesheetview?StudentID=${id}`);
     const data = await response.json();
 
-    data.forEach( row => {
+    data.forEach(row => {
       const tr = document.createElement('tr');
       const tableRow = timeSheet.insertRow();
       tableRow.dataset.id = row.ProjectID;

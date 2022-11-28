@@ -21,25 +21,23 @@ $name = $obj-> Name = chr(rand(40,90));
 $obj-> Size = 1.60+rand(0,3);
 $obj-> freeze();
 
-// $obj-> Name = "=$name";
-// foreach($obj as $key => $value) {
-//   $obj-> delete();
-// }
+$obj-> Name = "=$name";
+foreach( \NeueMedien\test::findAll() as $key => $value) {
+  $obj-> delete();
+}
 
 
-// for( $i=100000; $i>0; $i-- ) {
-//   $obj = new \NeueMedien\test();
-//   $obj-> Name = chr(rand(40,90));
-//   $obj-> size = 1.60+rand(0,30)/100;
-//   $obj-> freeze();
-// }
+for( $i=100000; $i>0; $i-- ) {
+  $obj = new \NeueMedien\test();
+  $obj-> Name = chr(rand(40,90));
+  $obj-> Size = 1.60+rand(0,30)/100;
+  $obj-> freeze();
+}
 $s = "0000-0-0 00:00:00";
 $d = \DateTime::createFromFormat('Y-m-d H:i:s',$s);
 echo $d-> format("d.m.Y H:i:s");
 
-$obj = new \NeueMedien\test();
-$obj-> setWhere( [ 'Name' => "<D" ]);
-foreach($obj as $test ) {
+foreach(\NeueMedien\test::findAll([ 'Name' => "<D" ]) as $test ) {
   echo "
   <pre>
   {$test-> Name}
@@ -47,15 +45,12 @@ foreach($obj as $test ) {
   {$test-> Date-> format('d.m.Y')}
   </pre>";
 }
-  
 
-// $obj = new \NeueMedien\test();
-// $obj-> setWhere( ["size" => ">1.62"]);
-// foreach( $obj as $id=> $obj) {
-//   $obj-> delete();
-// }
-// $obj = new \NeueMedien\test();
-// $obj-> setWhere( ["Name" => "UY,V"]);
-// foreach( $obj as $id=> $obj) {
-//   $obj-> delete();
-// }
+foreach( \NeueMedien\test::findAll(["size" => ">1.62"]) as $id=> $obj) {
+  $obj-> delete();
+}
+
+
+foreach( \NeueMedien\test::findAll(["Name" => "~Y,V"]) as $id=> $obj) {
+  $obj-> delete();
+}

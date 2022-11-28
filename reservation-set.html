@@ -10,7 +10,13 @@
 </head>
 
 <body>
-
+  <nav>
+    <a href="./index.php">Home</a>
+    <a href="./timesheet-set.html">Zeiterfassung</a>
+    <a href="./equipment-list.php">Equipment</a>
+    <a href="./reservation-set.html">Reservation</a>
+    <a href="./index.php">Home</a>
+  </nav>
   <form autocomplet="off" action="#" style="width:300px;margin:auto;">
     <div class="autocomplete" style="width:300px;">
       <input name="equipment" id="equipment" placeholder="Equipment">
@@ -53,9 +59,9 @@
         End: $('#end').value,
       };
 
-      const id = null;
-      const url = `https://projects.sbw.media/equipment_reservation?EquipmentID=${reservation.EquipmentID}&StudentID=${reservation.StudentID}&Start=${reservation.Start}`;
-      const response = await fetch(url);
+      let id = null;
+      let url = `/equipment_reservation?EquipmentID=${reservation.EquipmentID}&StudentID=${reservation.StudentID}&Start=${reservation.Start}`;
+      let response = await fetch(url);
       if (!response.ok) {
         message.innerHTML = `Fehler: ${response.status}`;
       } else if (response.status === 200) {
@@ -67,10 +73,10 @@
 
       let request;
       if (id) {
-        url = `https://projects.sbw.media/equipment_reservation/${id}`;
+        url = `/equipment_reservation/${id}`;
         request = { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: body};
       } else {
-        url = 'https://projects.sbw.media/equipment_reservation';
+        url = '/equipment_reservation';
         request = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -84,13 +90,13 @@
         message.textContent = `${response.status}: ${response.statusText}`;
       }
 
-      updateReservation(reservation.StudentID);
+      updateReservation(reservation.EquipmentID);
     })
   });
   async function updateReservation(id) {
     const table = $('#reservations tbody');
     table.innerHTML = '';
-    const response = await fetch(`https://projects.sbw.media/reservationview?EquipmentID=${id}`);
+    const response = await fetch(`/reservationview?EquipmentID=${id}`);
 
     if(response.ok) {
       const data = await response.json();
@@ -108,8 +114,7 @@
 
 </script>
 
-<script src=".https://projects.sbw.media/assets/js/autocomplete.js"></script>
-<script>
+<script src="./assets/js/autocomplete.js"></script><script>
   autocomplete($("#equipment"), $("#equipment-id"), '/equipment?Name=', 'Name');
   autocomplete($("#student"), $("#student-id"), '/student?Fullname=', 'Fullname');
 </script>

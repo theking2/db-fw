@@ -29,12 +29,11 @@ echo wrap_tag('p', $eq-> Description);
 <a href="./equipment-list.php">Zurück</a>
 </section>
 
-<?php
-$details = new \NeueMedien\reservationview();
-$details-> setWhere([ 'ID' => '=' . $eq->ID ]);
-foreach($details as $id=> $detail) {?>
 <section class="student-detail">
-  <h2>Reservationen</h2>
+<h2>Reservationen</h2>
+
+<?php
+foreach( \NeueMedien\reservationview::findAll( [ 'EquipmentID' => '=' . $eq->ID] ) as $id=> $detail) {?>
   <ul>
     <li data-id="<?= $detail->ID ?>">
       <?= $detail-> Fullname ?>

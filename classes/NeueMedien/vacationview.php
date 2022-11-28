@@ -12,9 +12,9 @@ namespace NeueMedien;
  */
 final class vacationview
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?int       $ID;
 	protected ?string    $VacationType;

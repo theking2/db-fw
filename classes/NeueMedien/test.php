@@ -10,9 +10,9 @@ namespace NeueMedien;
  */
 final class test
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?int       $test_ID;
 	protected ?string    $Name;
@@ -26,7 +26,7 @@ final class test
 		return [
 			'test_ID'            => ['int', 10 ],
 			'Name'               => ['string', 255 ],
-			'Size'            => ['float', 0 ],
+			'Size'               => ['float', 0 ],
 			'Date'               => ['Date', 0 ],
 		];
 	}

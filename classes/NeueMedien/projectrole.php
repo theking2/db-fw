@@ -8,9 +8,9 @@ namespace NeueMedien;
  */
 final class projectrole
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?string    $ID;
 	protected ?string    $Name;

@@ -12,9 +12,9 @@ namespace NeueMedien;
  */
 final class projectview
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?int       $ProjectID;
 	protected ?string    $ProjectNr;

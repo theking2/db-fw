@@ -47,18 +47,31 @@ $allowed = ['test'
 ];	
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$param = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
-$uri = explode( '/', $uri );
+/**
+ * get the endpoint from the request
+ * e.g. /api/index.php/<endpoint>[/<id>] or /api/index.php/<endpoint>?<query>
+ * $uri[0] is always empty, $uri[1] is the endpoint
+ */
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+/**
+ * $uri[2] is the id, if it present
+ */
+$uri = explode( '/', $path );
+unset($uri[0]);
 
 if( !isEntityValid($uri[1]) ) {
   sendResponse(notFoundResponse());
   exit();
 }
 
-if( $param ) {
-  $uri[2] = parseParameters($param);
+/**
+ * set the query string if query is present
+ */
+if( $query ) {
+  $uri[2] = parseParameters($query);
 }
+unset($path, $query);
 
 // prepend the namespace
 $uri[1] = __NAMESPACE__ . '\\' . $uri[1];
@@ -145,9 +158,7 @@ function doGet(array $uri): array
     }
   }
 
-
-
-  // no key provided, return all
+  // no key provided, return all or selection
   // paging would be nice here
 
   $result = [];

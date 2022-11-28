@@ -2,7 +2,13 @@
 
 namespace Persist;
 
-
+/**
+ * IteratorTrait
+ * 
+ * This trait implements the Iterator interface for the class that uses it.
+ * @obsolote user the generator findall() instead
+ * @package Persist
+ */
 trait IteratorTrait {
 	public function current ( ): object { return $this; }
 	#[\ReturnTypeWillChange]

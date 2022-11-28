@@ -3,8 +3,8 @@ namespace NeueMedien;
 
 /**
  * reservationview – Persistant DB object
- * int       $ID
- * int       $EquipmentID
+ * int       $ID;
+ * int       $EquipmentID;
  * string    $Equipment;
  * string    $Number;
  * int       $StudentID;
@@ -14,9 +14,9 @@ namespace NeueMedien;
  */
 final class reservationview
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?int       $ID;
 	protected ?int       $EquipmentID;

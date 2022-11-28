@@ -59,7 +59,7 @@ trait DBPersistTrait
 	/**
 	 * getFieldList
 	 *
-	 * @param  mixed $_dirty - if true, only dirty fields are returned
+	 * @param  mixed $ignore_dirty - if true, only dirty fields are returned
 	 * @return string
 	 */
 	private function getUpdateFieldList( ?bool $ignore_dirty=false ): string
@@ -86,7 +86,7 @@ trait DBPersistTrait
 	 * bindFieldList
 	 *
 	 * @param  mixed $stmt
-	 * @param  mixed $_dirty - if true, only dirty fields are bound
+	 * @param  mixed $ignore_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
 	private function bindFieldList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): bool
@@ -105,7 +105,7 @@ trait DBPersistTrait
 	 * Create insert buffer as string[]
 	 *
 	 * @param  mixed $stmt
-	 * @param  mixed $_dirty - if true, only dirty fields are bound
+	 * @param  mixed $ignore_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
 	private function bindValueList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): bool
@@ -134,6 +134,7 @@ trait DBPersistTrait
 	 */
 	public function __set(string $field, $value): void
 	{
+
 		/** convert to DateTime type */
 		$convert_date = function ($value, $format): ?\DateTime {
 			if (is_null($value)) return null;
@@ -205,9 +206,10 @@ trait DBPersistTrait
 	 * this assumes keys are singel and ints!!
 	 *
 	 * @param  int $id
+	 * @throws DatabaseException
 	 * @return object
 	 */
-	public function thaw($id): ?\Persist\IPersist
+	public function thaw( mixed $id ): ?\Persist\IPersist
 	{
     $query = sprintf
       ( 'select %s from %s where `%s` = :ID'
@@ -215,33 +217,44 @@ trait DBPersistTrait
       , static::getTableName()
       , static::getPrimaryKey( )
 		);
-		$stmt = Database::getConnection()->prepare($query);
-		if( !$stmt ) {
-			throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this-> getTableName()}:%s)" );
-		}
-		$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 
-    if( !$stmt-> execute([':ID'=>$id]) ) {
-			throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
-		}
-
-		if ($stmt->fetch()) {
-			switch( $this->getFields()[$this->getPrimaryKey()][0] ) {
-				case 'int':
-					$this-> {$this->getPrimaryKey()} = (int)$id;
-					break;
-				case 'string':
-					$this-> {$this->getPrimaryKey()} = (string)$id;
-					break;
-				default:
-					throw new \Exception("Unknown type for primary key");
+		try {
+			$stmt = Database::getConnection()->prepare($query);
+			if( !$stmt ) {
+				throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this-> getTableName()}:%s)" );
 			}
-			$this-> _dirty = [];
-			return $this;
-		} else {
-			$this-> {$this->getPrimaryKey()} = null;
-			$this-> _dirty = [];
-			return null;
+
+			if( !$stmt-> execute([':ID'=>$id]) ) {
+				throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
+			}
+
+			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
+			if( $stmt->fetch() ) {
+				switch( $this->getFields()[$this->getPrimaryKey()][0] ) {
+					case 'int':
+						$this-> {$this->getPrimaryKey()} = (int)$id;
+						break;
+					case 'string':
+						$this-> {$this->getPrimaryKey()} = (string)$id;
+						break;
+					default:
+						throw new \Exception("Unknown type for primary key");
+				}
+				$this-> _dirty = [];
+				return $this;
+			} else {
+				$this-> {$this->getPrimaryKey()} = null;
+				$this-> _dirty = [];
+				return null;
+			}
+		} catch( \PDOException $e ) {
+			$errorInfo = $stmt-> errorInfo();
+			$message = sprintf(
+				'Error finding %s, (%s)',
+				$this->getTableName(),
+				$errorInfo[2]
+			);
+			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
 	}
 
@@ -249,6 +262,7 @@ trait DBPersistTrait
 	 * Insert a new record in the database
 	 * NOTE: This is not thread save as between the execute and lastInsertId another
 	 * sql statement could occur yielding the wrong ID to be set.
+	 * @throws DatabaseException
 	 * @return bool
 	 */
 	protected function insert(): bool
@@ -271,6 +285,7 @@ trait DBPersistTrait
 	}
 	/**
 	 * Synchronize changes in Database
+	 * @throws DatabaseException
 	 * @return bool
 	 */
 	protected function update(): bool
@@ -296,8 +311,10 @@ trait DBPersistTrait
 	 * Datensatz $this->ID aus der Tabelle entfernen
 	 * If $constraint is set than use this to select the records to delete
 	 * If $constraint is not set than delete thre record by ID
+	 * @throws DatabaseException
+	 * @return bool
 	 */
-	public function delete()
+	public function delete(): bool
 	{
 		try {
 
@@ -358,24 +375,23 @@ trait DBPersistTrait
 				);
 			}
 
-			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 
 			if( !$stmt-> execute() ) {
-				throw DatabaseException::createExecutionException(
-					$stmt, "Could not execute statement for {$this->getTableName()}:%s"
-				);
+				throw DatabaseException::createExecutionException( $stmt, "Could not execute statement for {$this->getTableName()}:%s" );
 			}
+
+			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 			if( $stmt-> fetch() ) {
 				$this-> current_statement = $stmt;
-				$this-> valid = true;
+				$this-> _valid = true;
 				$this-> _dirty = [];
 			} else {
-				$this-> valid = false;
+				$this-> _valid = false;
 			}
 		} catch( \PDOException $e ) {
 			$errorInfo = $stmt-> errorInfo();
 			$message = sprintf(
-				'Could not find %s, (%s)',
+				'Error finding %s, (%s)',
 				$this->getTableName(),
 				$errorInfo[2]
 			);
@@ -383,34 +399,33 @@ trait DBPersistTrait
 		}
 	}
 	/**
-	 * function findNext navigate to next record
-	 * new record available
+	 * function findNext navigate to next record if available
+	 * @return bool
 	 */
-	public function findNext()
+	public function findNext(): bool
 	{
 		try {
-			if( $this->current_statement->fetch() ) {
-				$this->valid = true;
-				$this->_dirty = [];
+			if( $this-> current_statement-> fetch() ) {
+				$this-> _valid = true;
+				$this-> _dirty = [];
 				return true;
 			} else {
-				$this-> valid = false;
+				$this-> _valid = false;
 				return false;
 			}
 		} catch( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this->current_statement, "Could not find next in {$this->getTableName()}:%s"
+				$this-> current_statement, "Could not find next in {$this-> getTableName()}:%s"
 			);
 		}
 	}
 	/**
 	 * find – find records in the database
-	 * @uses _where
-	 * @uses _order
+
 	 * @throws DatabaseException
 	 * @return object
 	 */
-	public static function find(array $where = [], array $order = []): ?static
+	public static function find(?array $where = [], ?array $order = []): ?static
 	{
 		$obj = new static(where: $where, order: $order);
 		$obj->findFirst();
@@ -451,16 +466,16 @@ trait DBPersistTrait
 	}
 
 	/**
-	 * 
-	 * @return void 
+	 * Generator findAll() – find all records in the database
+	 * @return \Generator 
 	 * @throws DatabaseException 
 	 */
-	public static function findAll( ?array $where =[], ?array $order=[] ): Generator
+	public static function findAll( ?array $where =[], ?array $order=[] ): \Generator
 	{
-		$obj = (new static)-> setWhere($where)-> setOrder($order);
+		$obj = ((object)(new static))-> setWhere($where)-> setOrder($order);
 		for(
 			$obj-> findFirst();
-			$obj-> valid;
+			$obj-> _valid;
 			$obj-> findNext()
 		) {
 			yield $obj-> {$obj->getPrimaryKey()} => $obj;
@@ -491,8 +506,8 @@ trait DBPersistTrait
 	 * | bitwise or
 	 * ^ bitwise xor
 	 * U IN values
-	 * @return string where string clause
 	 *
+	 * @return string SQL where clause string
 	 */
 	private function getWhere(): string
 	{
@@ -543,9 +558,11 @@ trait DBPersistTrait
 	}
 	/**
 	 * Bind the set values to the statement
+	 * 
 	 * @param PDOStatement $stmt - 
+	 * @return bool
 	 */
-	private function bindWhere( $stmt ): bool
+	private function bindWhere( \PDOStatement $stmt ): bool
 	{
 		$result = true;
 		foreach( $this->_where as $fieldname => $filter ) {
@@ -570,6 +587,7 @@ trait DBPersistTrait
 	 * Create Statement, bind to object members and save
 	 * return cached select statement
 	 * Result columns are bind to the fields
+	 * 
 	 * @return \PDOStatement 
 	 */
 	protected function getInsertStatement(): \PDOStatement
@@ -598,6 +616,7 @@ trait DBPersistTrait
 	 * Create Statement, bind to object members and save
 	 * return cached select statement
 	 * Result columns are bind to the fields
+	 * 
 	 * @return \PDOStatement 
 	 */
 	private function getUpdateStatement(): \PDOStatement
@@ -633,9 +652,10 @@ trait DBPersistTrait
 	 * Create Statement, bind to object members and save
 	 * return cached select statement
 	 * Result columns are bind to the fields
+	 * 
 	 * @return \PDOStatement 
 	 */
-	protected function getDeleteStatement()
+	protected function getDeleteStatement(): \PDOStatement
 	{
 		if( is_null($this-> delete_statement) ) {
 			$query = sprintf( 'delete from %s where `%s` = :ID',

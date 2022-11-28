@@ -4,7 +4,7 @@ namespace NeueMedien;
 /**
  * timesheetview – Persistant DB object
  * int       $ID;
- * inf       $StudentID;
+ * int       $StudentID;
  * string    $Fullname;
  * string    $ProjectName;
  * string    $Number;
@@ -13,9 +13,9 @@ namespace NeueMedien;
  */
 final class timesheetview
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?int       $ID;
 	protected ?int       $StudentID;
@@ -31,7 +31,7 @@ final class timesheetview
 	static public function getFields():array {
 		return [
 			'ID'                 => ['int', 10 ],
-			'StudentID'					 => ['int', 10 ],
+			'StudentID'          => ['int', 10 ],
 			'Fullname'           => ['string', 250 ],
 			'ProjectName'        => ['string', 255 ],
 			'Number'             => ['string', 10 ],

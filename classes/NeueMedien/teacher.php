@@ -10,9 +10,9 @@ namespace NeueMedien;
  */
 final class teacher
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?string    $Abbr;
 	protected ?string    $Name;

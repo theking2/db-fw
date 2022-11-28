@@ -15,9 +15,9 @@ namespace NeueMedien;
  */
 final class taskview
 	extends \Persist\Base
-	implements \Persist\IPersist, \Iterator
+	implements \Persist\IPersist
 {
-	use \Persist\IteratorTrait, \DB\DBPersistTrait;
+	use \DB\DBPersistTrait;
 
 	protected ?int       $id;
 	protected ?int       $ProjectID;
