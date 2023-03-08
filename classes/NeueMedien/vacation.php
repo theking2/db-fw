@@ -29,8 +29,8 @@ final class vacation
 			'ID'                 => ['int', 10 ],
 			'VacationTypeID'     => ['int', 10 ],
 			'StudentID'          => ['int', 10 ],
-			'FromDate'           => ['\DateTime', 0 ],
-			'ToDate'             => ['\DateTime', 0 ],
+			'FromDate'           => ['Date', 0 ],
+			'ToDate'             => ['Date', 0 ],
 		];
 	}
 }
