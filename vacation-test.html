@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./assets/style/main.css">
+  <script src="./assets/js/main.js"></script>
+  <title>Ferienanfrage</title>
+</head>
+
+<body>
+  <h1>Urlaubeingabe</h1>
+  <form autocomplete="off" action="#" style="width:300px;margin:auto;">
+    <select name="student" id="student" placeholder="Lernpartner">
+      <option value="48">Anaja Wackernagel</option>
+      <option value="49">Antonelle Rössler</option>
+    </select>
+    <select name="equipment" id="vacation-type" placeholder="type">
+      <option value="1">Ferien</option>
+      <option value="3">Krankheit</option>
+    </select>
+      <input type="date" id="start"><br>
+      <input type="date" id="end"><br>
+      <button id="add">insert</button><br>
+      <p id="message"></p>
+  </form>
+
+  <table id="vacations" style="width:50vw;margin:auto;" border="1">
+    <tbody></tbody>
+    <thead><tr> <th>Wer <th>Was <th>Von <th>Bis</thead>
+  </table>
+</body>
+<script>
+  let vacationType = $('#vacation-type');
+  let student = $('#student');
+
+  let start = $('#start');
+  let end = $('#end');
+
+  let message = $('#message');
+  let addButton = $('#add');
+
+  async function sendRequest(ev) {
+    ev.preventDefault();
+
+    const vacation = {
+      StudentID: student.value,
+      VacationTypeID: vacationType.value,
+      FromDate: start.value,
+      ToDate: end.value,
+    };
+    const body = JSON.stringify(vacation);
+    let request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    };
+    let response = await fetch('https://projects.sbw.media/vacation', request);
+    if (response.ok) {
+      message.textContent = 'Ferienanfrage erfolgreich eingetragen';
+      updateVacationList(student.value);
+    } else {
+      message.textContent = 'Fehler beim Eintragen der Ferienanfrage';
+    }
+  }
+  addButton.addEventListener('click', sendRequest);
+
+  async function updateVacationList(id)
+  {
+    const response = await fetch(`https://projects.sbw.media/vacationview`);
+
+    if (response.ok) {
+      const data = await response.json();
+
+      const table = $('#vacations tbody');
+
+      table.innerHTML = '';
+      data.forEach(row => {
+        const tableRow = table.insertRow();
+        tableRow.insertCell().textContent = row.Fullname;
+        tableRow.insertCell().textContent = row.VacationType;
+        tableRow.insertCell().textContent = row.FromDate;
+        tableRow.insertCell().textContent = row.ToDate;
+      });
+    }
+  }
+
+</script>
+
+</html>
