@@ -32,8 +32,8 @@ final class vacationview
 			'VacationType'       => ['string', 255 ],
 			'StudentID'          => ['int', 10 ],
 			'Fullname'           => ['string', 250 ],
-			'FromDate'           => ['\DateTime', 0 ],
-			'toDate'             => ['\DateTime', 0 ],
+			'FromDate'           => ['Date', 0 ],
+			'toDate'             => ['Date', 0 ],
 		];
 	}
 }
