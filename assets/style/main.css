@@ -1,34 +1,35 @@
 :root {
   --color-primary: #00a0ff;
   --color-secondary: #00d1b2;
-  --color-tertiary: #ffa800;
+  --color-tertiary: hsl(40, 100%, 50%);
   --color-quaternary: #ff0080;
-
+  font-family: 'Cadman';
 }
-@font-face{ 
-	font-family: 'Cadman';
-	src: url('../fonts/Cadman_Roman-webfont.woff') format('woff');
+
+@font-face {
+  font-family: 'Cadman';
+  src: url('../fonts/Cadman_Roman-webfont.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
-@font-face{ 
-	font-family: 'Cadman';
-	src: url('../fonts/Cadman_Bold-webfont.woff') format('woff');
+@font-face {
+  font-family: 'Cadman';
+  src: url('../fonts/Cadman_Bold-webfont.woff') format('woff');
   font-weight: bold;
   font-style: normal;
 }
 
-@font-face{ 
-	font-family: 'Cadman';
-	src: url('../fonts/Cadman_Italic-webfont.woff') format('woff');
+@font-face {
+  font-family: 'Cadman';
+  src: url('../fonts/Cadman_Italic-webfont.woff') format('woff');
   font-weight: normal;
   font-style: italic;
 }
 
-@font-face{ 
-	font-family: 'Cadman';
-	src: url('../fonts/Cadman_BoldItalic-webfont.woff') format('woff');
+@font-face {
+  font-family: 'Cadman';
+  src: url('../fonts/Cadman_BoldItalic-webfont.woff') format('woff');
   font-weight: bold;
   font-style: italic;
 }
@@ -38,23 +39,36 @@ html {
   box-sizing: border-box;
 }
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: inherit;
-  margin: 0; padding:0;
+  margin: 0;
+  padding: 0;
 }
 
 /** global font */
 html {
-  font: 14px/16px 'Cadman';
+  font: 14px/1.4em 'Cadman';
 }
 
+main {
+  width: 300px;
+  margin: 2em auto;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+th {
+  text-align: left;
+}
 #time-sheet {
-   width:30vw;
-   margin:2em auto;
+  width: 30vw;
+  margin: 2em auto;
 }
 
 #time-sheet tr {
-  border-color: var(--color-secondary);
+  border-color: var(--color-quaternary);
 }
 
 #time-sheet th {
@@ -64,7 +78,7 @@ html {
 /** equipment list */
 .object-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 15px;
   margin: 5px;
 }
@@ -72,10 +86,11 @@ html {
 .object-tile {
   display: block;
   height: 10em;
-  width:  300px;
+  width: 300px;
   text-decoration: inherit;
   color: inherit;
-  perspective: 1000px; /* Remove this if you don't want the 3D effect */
+  perspective: 1000px;
+  /* Remove this if you don't want the 3D effect */
 }
 
 /** project list */
@@ -108,11 +123,13 @@ html {
 }
 
 /* Position the front and back side */
-.flip-card-front, .flip-card-back {
+.flip-card-front,
+.flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  -webkit-backface-visibility: hidden; /* Safari */
+  -webkit-backface-visibility: hidden;
+  /* Safari */
   backface-visibility: hidden;
   background-color: var(--color-primary);
 
@@ -127,30 +144,32 @@ html {
 
 
 /** generic form styles */
-button, select, option {
-  background: var(--color-secondary);
-    padding: 10px;
-
-  margin: 0;
-  width: 100%;
+button, input, option {
   font-size: inherit;
   font-family: inherit;
   font-weight: inherit;
   color: inherit;
+}
+
+button {
+  background: var(--color-secondary);
+  padding: 10px;
+
+  margin: 0;
+  width: 100%;
+
+  color: inherit;
   cursor: pointer;
   transition: all 150ms;
 }
-
-input{
+input,
+select,
+option {
   border: none;
   border-bottom: 1px solid #ccc;
   padding: 10px;
   margin: 0;
   width: 100%;
-  font-size: 1em;
-  font-family: inherit;
-  font-weight: inherit;
-  color: inherit;
   background: transparent;
 }
 
@@ -175,17 +194,17 @@ input{
 .autocomplete-items div {
   padding: 10px;
   cursor: pointer;
-  background-color: #fff; 
-  border-bottom: 1px solid var(--color-primary); 
+  background-color: #fff;
+  border-bottom: 1px solid var(--color-primary);
 }
 
 /*when hovering an item:*/
 .autocomplete-items div:hover {
-  background-color: var(--color-primary); 
+  background-color: var(--color-primary);
 }
 
 /*when navigating through the items using the arrow keys:*/
 .autocomplete-active {
-  background-color: var(--color-primary) !important; 
-  color: #ffffff; 
+  background-color: var(--color-primary) !important;
+  color: #ffffff;
 }
