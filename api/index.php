@@ -178,7 +178,7 @@ function doGet(array $uri): array
   }
 
   if( count($result)===0 ) {
-    return notFoundResponse();
+    return noContentResponse();
   }
   $response['status_code_header'] = 'HTTP/1.1 200 OK';
   $response['body'] = json_encode($result);
@@ -273,6 +273,19 @@ function okResponse(): array
 
   return $response;
 }
+/**
+ * Create a 400 Invalid response
+ */
+
+function badRequestResponse(): array
+{
+  $response['status_code_header'] = 'HTTP/1.1 400 Bad Request';
+  $response['body'] = null;
+
+  return $response;
+}
+
+
 /**
  * Create a 404 response
  *
