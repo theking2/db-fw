@@ -42,15 +42,16 @@
 </body>
 <script>
   const api_url = 'https://projects.sbw.media';
+  const main = document.getElementsByTagName('main')[0];
 
-  let vacationType = $('#vacation-type');
-  let student = $('#student');
+  const vacationType = $('#vacation-type');
+  const student = $('#student');
 
-  let start = $('#start');
-  let end = $('#end');
+  const start = $('#start');
+  const end = $('#end');
 
-  let message = $('#message');
-  let addButton = $('#add');
+  const message = $('#message');
+  const addButton = $('#add');
 
   /**
    * Send request to the API
@@ -58,6 +59,7 @@
    */
   async function sendRequest(ev) {
     ev.preventDefault();
+    main.style.cursor = 'wait';
 
     const vacation = {
       StudentID: student.value,
@@ -77,6 +79,7 @@
     } else {
       message.textContent = 'Fehler beim Eintragen der Ferienanfrage';
     }
+    main.style.cursor = 'pointer';
   }
   addButton.addEventListener('click', sendRequest);
 
