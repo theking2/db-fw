@@ -288,6 +288,18 @@ function notFoundResponse(): array
 }
 
 /**
+ * Create a 204 response
+ */
+
+function noContentResponse(): array
+{
+
+  $response['status_code_header'] = 'HTTP/1.1 204 No Content';
+  $response['body'] = null;
+
+  return $response;
+}
+/**
  * Create a 422 response
  *
  * @return array
