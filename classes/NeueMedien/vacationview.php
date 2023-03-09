@@ -8,7 +8,7 @@ namespace NeueMedien;
  * int       $StudentID;
  * string    $Fullname;
  * \DateTime $FromDate;
- * \DateTime $toDate;
+ * \DateTime $ToDate;
  */
 final class vacationview
 	extends \Persist\Base
@@ -21,7 +21,7 @@ final class vacationview
 	protected ?int       $StudentID;
 	protected ?string    $Fullname;
 	protected ?\DateTime $FromDate;
-	protected ?\DateTime $toDate;
+	protected ?\DateTime $ToDate;
 
 	// Persist functions
 	static public function getPrimaryKey():string { return 'ID'; }
@@ -33,7 +33,7 @@ final class vacationview
 			'StudentID'          => ['int', 10 ],
 			'Fullname'           => ['string', 250 ],
 			'FromDate'           => ['Date', 0 ],
-			'toDate'             => ['Date', 0 ],
+			'ToDate'             => ['Date', 0 ],
 		];
 	}
 }
