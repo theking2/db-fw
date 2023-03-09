@@ -13,7 +13,7 @@
 <body>
   <main>
     <h1>Urlaubeingabe</h1>
-    <form autocomplete="off" action="#" >
+    <form autocomplete="off" action="#">
       <select name="student" id="student" placeholder="Lernpartner">
         <option value="48">Anaja Wackernagel</option>
         <option value="49">Antonelle Rössler</option>
@@ -30,18 +30,13 @@
 
     <table id="vacations" style="width:200%"">
       <tbody></tbody>
-      <thead>
-        <tr>
-          <th>Wer
-          <th>Was
-          <th>Von
-          <th>Bis
-      </thead>
+      <thead><tr><th>Wer<th>Was<th>Von<th>Bis</thead>
     </table>
   </main>
 </body>
 <script>
   const api_url = 'https://projects.sbw.media';
+  //const api_url = 'http://projects.localhost'
   const main = document.getElementsByTagName('main')[0];
 
   const vacationType = $('#vacation-type');
@@ -86,7 +81,8 @@
   /**
    * Update the list of Vacations
    */
-  async function updateVacationList() {
+  async function updateVacationList()
+  {
     const table = $('#vacations tbody');
 
     const response = await fetch(api_url + `/vacationview?StudentID=${student.value}`);
@@ -100,6 +96,7 @@
           /* add the rows from the data to the table */
           data.forEach(row => {
             const tableRow = table.insertRow();
+            tableRow.dataset.Id = row.ID;
             tableRow.insertCell().textContent = row.Fullname;
             tableRow.insertCell().textContent = row.VacationType;
             tableRow.insertCell().textContent = row.FromDate;
@@ -124,33 +121,45 @@
       message.textContent = 'Fehler API ' + response.status;
     }
   }
-  student.addEventListener('change', updateVacationList)
+  student.addEventListener('change', updateVacationList);
+
+  async function deleteVacationEntry(event)
+  {
+    const id = event.target.parentElement.dataset.Id;
+    if (id === undefined ) return;
+    const request = {
+      method: 'DELETE',
+    };
+    const response = await fetch(api_url + '/vacation/' + id, request);
+    if (response.status === 200) {
+      updateVacationList();
+      message.textContent = 'Urlaub entfernt';
+    }
+  }
+  $('#vacations').addEventListener('click', deleteVacationEntry);
 
   /**
    * create the select list for the students
    */
   async function loadStudents() {
-    const studentSelect = document.getElementById("student");
-
-    const response = await fetch(api_url + '/student');
-    if (response.ok) {
-      studentSelect.innerHTML = '';
-      const students = await response.json();
-      students.forEach(student => {
-        const opt = document.createElement("option");
-        opt.value = student.ID;
-        opt.text = student.Fullname;
-        studentSelect.add(opt);
-      });
+    const studentSelect = $("#student");
+    const response = await fetch(api_url + '/student'); if
+      (response.ok) {
+        studentSelect.innerHTML = ''; const students = await response.json(); students.forEach(student => {
+          const opt = document.createElement("option");
+          opt.value = student.ID;
+          opt.text = student.Fullname;
+          studentSelect.add(opt);
+        });
     }
   }
   loadStudents();
 
   /**
-   * create the select list for the vacation types
-   */
+  * create the select list for the vacation types
+  */
   async function loadVacationType() {
-    const vacationSelect = document.getElementById("vacation-type");
+    const vacationSelect = $("#vacation-type");
 
     const response = await fetch(api_url + '/vacationtype');
     if (response.ok) {
