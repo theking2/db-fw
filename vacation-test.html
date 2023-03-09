@@ -11,28 +11,38 @@
 </head>
 
 <body>
-  <h1>Urlaubeingabe</h1>
-  <form autocomplete="off" action="#" style="width:300px;margin:auto;">
-    <select name="student" id="student" placeholder="Lernpartner">
-      <option value="48">Anaja Wackernagel</option>
-      <option value="49">Antonelle Rössler</option>
-    </select>
-    <select name="equipment" id="vacation-type" placeholder="type">
-      <option value="1">Ferien</option>
-      <option value="3">Krankheit</option>
-    </select>
+  <main>
+    <h1>Urlaubeingabe</h1>
+    <form autocomplete="off" action="#" style="width:300px;margin:auto;">
+      <select name="student" id="student" placeholder="Lernpartner">
+        <option value="48">Anaja Wackernagel</option>
+        <option value="49">Antonelle Rössler</option>
+      </select>
+      <select name="equipment" id="vacation-type" placeholder="type">
+        <option value="1">Ferien</option>
+        <option value="3">Kompensation</option>
+      </select>
       <input type="date" id="start"><br>
       <input type="date" id="end"><br>
       <button id="add">insert</button><br>
       <p id="message"></p>
-  </form>
+    </form>
 
-  <table id="vacations" style="width:50vw;margin:auto;" border="1">
-    <tbody></tbody>
-    <thead><tr> <th>Wer <th>Was <th>Von <th>Bis</thead>
-  </table>
+    <table id="vacations" style="width:50vw;margin:auto;" border="1">
+      <tbody></tbody>
+      <thead>
+        <tr>
+          <th>Wer
+          <th>Was
+          <th>Von
+          <th>Bis
+      </thead>
+    </table>
+  </main>
 </body>
 <script>
+  const api_url = 'https://projects.sbw.media';
+
   let vacationType = $('#vacation-type');
   let student = $('#student');
 
@@ -42,51 +52,116 @@
   let message = $('#message');
   let addButton = $('#add');
 
+  /**
+   * Send request to the API
+   * @param event ev
+   */
   async function sendRequest(ev) {
     ev.preventDefault();
 
     const vacation = {
       StudentID: student.value,
-      VacationTypeID: vacationType.value,
+      vacationTypeID: vacationType.value,
       FromDate: start.value,
       ToDate: end.value,
     };
-    const body = JSON.stringify(vacation);
     let request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body
+      body: JSON.stringify(vacation)
     };
-    let response = await fetch('https://projects.sbw.media/vacation', request);
+    let response = await fetch(api_url + '/vacation', request);
     if (response.ok) {
       message.textContent = 'Ferienanfrage erfolgreich eingetragen';
-      updateVacationList(student.value);
+      updateVacationList();
     } else {
       message.textContent = 'Fehler beim Eintragen der Ferienanfrage';
     }
   }
   addButton.addEventListener('click', sendRequest);
 
-  async function updateVacationList(id)
-  {
-    const response = await fetch(`https://projects.sbw.media/vacationview`);
+  /**
+   * Update the list of Vacations
+   */
+  async function updateVacationList() {
+    const table = $('#vacations tbody');
 
+    const response = await fetch(api_url + `/vacationview?StudentID=${student.value}`);
     if (response.ok) {
-      const data = await response.json();
+      switch (response.status) {
+        case 200:
+          const data = await response.json();
 
-      const table = $('#vacations tbody');
+          /* clear the table */
+          table.innerHTML = '';
+          /* add the rows from the data to the table */
+          data.forEach(row => {
+            const tableRow = table.insertRow();
+            tableRow.insertCell().textContent = row.Fullname;
+            tableRow.insertCell().textContent = row.VacationType;
+            tableRow.insertCell().textContent = row.FromDate;
+            tableRow.insertCell().textContent = row.ToDate;
+          });
+          table.parentNode.style.display = 'table';
+          message.textContent = '';
+          break;
 
-      table.innerHTML = '';
-      data.forEach(row => {
-        const tableRow = table.insertRow();
-        tableRow.insertCell().textContent = row.Fullname;
-        tableRow.insertCell().textContent = row.VacationType;
-        tableRow.insertCell().textContent = row.FromDate;
-        tableRow.insertCell().textContent = row.ToDate;
+        case 204:
+          table.parentNode.style.display = 'none';
+          message.textContent = 'Kein Urlaub';
+          break;
+
+        default:
+          table.parentNode.style.display = 'none';
+          message.textContent = 'Fehler API ' + response.status;
+          break;
+      }
+    } else {
+      table.parentNode.style.display = 'none';
+      message.textContent = 'Fehler API ' + response.status;
+    }
+  }
+  student.addEventListener('change', updateVacationList)
+
+  /**
+   * create the select list for the students
+   */
+  async function loadStudents() {
+    const studentSelect = document.getElementById("student");
+
+    const response = await fetch(api_url + '/student');
+    if (response.ok) {
+      studentSelect.innerHTML = '';
+      const students = await response.json();
+      students.forEach(student => {
+        const opt = document.createElement("option");
+        opt.value = student.ID;
+        opt.text = student.Fullname;
+        studentSelect.add(opt);
       });
     }
   }
+  loadStudents();
 
+  /**
+   * create the select list for the vacation types
+   */
+  async function loadVacationType() {
+    const vacationSelect = document.getElementById("vacation-type");
+
+    const response = await fetch(api_url + '/vacationtype');
+    if (response.ok) {
+      vacationSelect.innerHTML = '';
+      const vacationType = await response.json();
+      vacationType.forEach(type => {
+        const opt = document.createElement("option");
+        opt.value = type.ID;
+        opt.text = type.Name;
+        vacationSelect.add(opt);
+      });
+    }
+  }
+  loadVacationType();
 </script>
 
 </html>
