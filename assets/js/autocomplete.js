@@ -1,6 +1,7 @@
 "use strict";
+import { api_url } from './config';
 
-const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
+export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
   let currentFocus = -1;
 
   input.addEventListener(
@@ -14,7 +15,7 @@ const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
         const list = document.getElementById('select-list');
 
         const a = document.createElement('div');
-        a.setAttribute('id', this.id + 'autocomplete-list');
+        a.setAttribute('id', fieldName + 'autocomplete-list');
         a.setAttribute('class', 'autocomplete-items');
         input.parentNode.appendChild(a);
 
@@ -64,7 +65,7 @@ const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
   };
 
   input.addEventListener("keydown", (e) => {
-    var x = document.getElementById(this.id + "autocomplete-list");
+    var x = document.getElementById(fieldName + "autocomplete-list");
     if (x) x = x.getElementsByTagName("div");
     switch (e.keyCode) {
       case 40: // down
@@ -114,8 +115,8 @@ const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
    * @param {HTMLElement} node - The node to ignore.
    */
   function closeAllLists(elmnt) {
-    const x = document.getElementsByClassName("autocomplete-items");
-    [].forEach.call(x, item => {
+    const x = document.querySelectorAll(".autocomplete-items");
+    x.forEach( item => {
       if (elmnt != item && elmnt != input) {
         item.parentNode.removeChild(item);
       }

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./assets/style/main.css">
-  <script src="./assets/js/main.js"></script>
+  <script src="./assets/js/reservation-set.js" type="module" defer></script>
   <title>Reservation</title>
 </head>
 
@@ -41,82 +41,4 @@
   </table>
 
 </body>
-<script>
-  document.addEventListener('DOMContentLoaded', e => {
-    $('#equipment-id').addEventListener('change', e => {
-      updateReservation($('#equipment-id').value);
-    });
-
-    const message = $('#message'); "";
-
-    $('#add').addEventListener('click', async ev => {
-      ev.preventDefault();
-
-      const reservation = {
-        EquipmentID: $('#equipment-id').value,
-        StudentID: $('#student-id').value,
-        Start: $('#start').value,
-        End: $('#end').value,
-      };
-
-      let id = null;
-      let url = `/equipment_reservation?EquipmentID=${reservation.EquipmentID}&StudentID=${reservation.StudentID}&Start=${reservation.Start}`;
-      let response = await fetch(url);
-      if (!response.ok) {
-        message.innerHTML = `Fehler: ${response.status}`;
-      } else if (response.status === 200) {
-        result = await response.json();
-        id = result[0].ID;
-      }
-
-      const body = JSON.stringify(reservation);
-
-      let request;
-      if (id) {
-        url = `/equipment_reservation/${id}`;
-        request = { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: body};
-      } else {
-        url = '/equipment_reservation';
-        request = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: body
-        };
-      }
-      response = await fetch(url, request);
-      if (!response.ok) {
-        message.textContent = `Fehler: ${response.status}`;
-      } else {
-        message.textContent = `${response.status}: ${response.statusText}`;
-      }
-
-      updateReservation(reservation.EquipmentID);
-    })
-  });
-  async function updateReservation(id) {
-    const table = $('#reservations tbody');
-    table.innerHTML = '';
-    const response = await fetch(`/reservationview?EquipmentID=${id}`);
-
-    if(response.ok) {
-      const data = await response.json();
-      table.innerHTML = '';
-      data.forEach( row => {
-        const tableRow = table.insertRow();
-        tableRow.insertCell().textContent = row.Equipment;
-        tableRow.insertCell().textContent = row.Number;
-        tableRow.insertCell().textContent = row.Fullname;
-        tableRow.insertCell().textContent = row.Start;
-        tableRow.insertCell().textContent = row.End;
-      });
-    }
-  }
-
-</script>
-
-<script src="./assets/js/autocomplete.js"></script><script>
-  autocomplete($("#equipment"), $("#equipment-id"), '/equipment?Name=', 'Name');
-  autocomplete($("#student"), $("#student-id"), '/student?Fullname=', 'Fullname');
-</script>
-
 </html>

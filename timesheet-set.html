@@ -6,8 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="./assets/style/main.css" rel="stylesheet">
-  <script src="./assets/js/main.js"></script>
-  <title>Test API</title>
+  <script src="./assets/js/timesheet-set.js" type="module" defer></script>
+  <title>Timesheet</title>
 </head>
 
 <body>
@@ -18,116 +18,35 @@
     <a href="./reservation-set.html">Reservation</a>
     <a href="./index.php">Home</a>
   </nav>
-  <form autocomplet="off" action="#" style="width:300px;margin:auto;">
-    <div class="autocomplete" style="width:300px;">
-      <input name="project" id="project" placeholder="Projekt">
-      <input type="hidden" name="project-id" id="project-id" value="">
-    </div>
-    <div class="autocomplete" style="width:300px;">
-      <input name="student" id="student" placeholder="Lernpartner">
-      <input type="hidden" name="student-id" id="student-id" value="">
-    </div>
-    <input type="date" id="date"><br>
-    <input type="number" id="minutes" min="15" max="240" step="15" placeholder="Minuten"><br>
+  <main>
+    <h1>Timesheet</h1>
+    <form autocomplet="off" action="#" style="width:300px;margin:auto;">
+      <div class="autocomplete" style="width:300px;">
+        <input name="project" id="project" placeholder="Projekt">
+        <input type="hidden" name="project-id" id="project-id" value="">
+      </div>
+      <div class="autocomplete" style="width:300px;">
+        <input name="student" id="student" placeholder="Lernpartner">
+        <input type="hidden" name="student-id" id="student-id" value="">
+      </div>
+      <input type="date" id="date"><br>
+      <input type="number" id="minutes" min="15" max="240" step="15" placeholder="Minuten"><br>
 
-    <button id="add">insert</button><br>
-    <p id="message"></p>
+      <button id="add">insert</button><br>
+      <p id="message"></p>
 
-  </form>
-  <table id="time-sheet">
-    <thead>
-      <tr>
-        <th>Projekt</th>
-        <th>Datum</th>
-        <th>Minuten</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
+    </form>
+    <table id="time-sheet">
+      <thead>
+        <tr>
+          <th>Projekt</th>
+          <th>Datum</th>
+          <th>Minuten</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
 </body>
-<script>
-  document.addEventListener('DOMContentLoaded', e => {
-    const project = $('#Project');
-    const id = $('#id');
-    let message = $('#message'); "";
-
-    $('#add').addEventListener('click', async ev => {
-      ev.preventDefault();
-      const projectID = $('#project-id').value;
-      const studentID = $('#student-id').value;
-      const date = $('#date').value;
-      const minutes = $('#minutes').value;
-
-      let id = null;
-      let url = `/timesheet?ProjectID=${projectID}&StudentID=${studentID}&Date=${date}`;
-      let response = await fetch(url);
-      if (!response.ok) {
-        message.innerHTML = `Fehler: ${response.status}`;
-      } else if (response.status === 200) {
-        result = await response.json();
-        id = result[0].ID;
-      }
-
-      const body = JSON.stringify({
-        ProjectID: projectID,
-        StudentID: studentID,
-        Date: date,
-        Minutes: minutes
-      });
-      let request;
-      if (id) {
-        url = `/timesheet/${id}`;
-        request = {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: body
-        };
-      } else {
-        url = '/timesheet';
-        request = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: body
-        };
-      }
-      response = await fetch(url, request);
-      if (!response.ok) {
-        message.textContent = `Fehler: ${response.status}`;
-      } else {
-        message.textContent = `${response.status}: ${response.statusText}`;
-      }
-
-      updateTimeSheet(studentID);
-    })
-  });
-
-  async function updateTimeSheet(id) {
-    const timeSheet = document.querySelector('#time-sheet tbody');
-    timeSheet.innerHTML = '';
-    const response = await fetch(`/timesheetview?StudentID=${id}`);
-    const data = await response.json();
-
-    data.forEach(row => {
-      const tr = document.createElement('tr');
-      const tableRow = timeSheet.insertRow();
-      tableRow.dataset.id = row.ProjectID;
-      tableRow.insertCell().textContent = row.ProjectName;
-      tableRow.insertCell().textContent = row.Date;
-      tableRow.insertCell().textContent = row.Minutes;
-    });
-  }
-
-</script>
-<script src="./assets/js/autocomplete.js"></script>
-<script>
-  autocomplete($('#project'), $('#project-id'), '/project?Name=', 'Name');
-  autocomplete($('#student'), $('#student-id'), '/student?Fullname=', 'Fullname');
-
-  $('#student-id').addEventListener('change', e => {
-    updateTimeSheet($('#student-id').value);
-  });
-
-</script>
 
 </html>
