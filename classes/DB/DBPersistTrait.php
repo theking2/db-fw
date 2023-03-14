@@ -134,8 +134,12 @@ trait DBPersistTrait
 	 */
 	public function __set(string $field, $value): void
 	{
+		/// check if field exists
+		if (!array_key_exists($field, $this->getFields())) {
+			throw new \InvalidArgumentException("Field $field does not exist");
+		}
 
-		/** convert to DateTime type */
+		/// convert to DateTime type
 		$convert_date = function ($value, $format): ?\DateTime {
 			if (is_null($value)) return null;
 			if (gettype($value) === 'string') {
