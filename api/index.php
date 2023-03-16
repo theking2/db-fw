@@ -118,7 +118,7 @@ function parseParameters(?string $param)
     $result = [];
     foreach (explode('&', $param) as $param) {
       $param = explode('=', $param);
-      $result[$param[0]] = '*' . str_replace('*', '%', $param[1]); // use the like operator
+      $result[$param[0]] = str_replace('*', '%', $param[1]); // use the like operator
     }
     return $result;
   } else {
@@ -156,7 +156,7 @@ function sendResponse(array $response): void
 /**
  * Handle a GET request, if {id} is provided attempt to retrieve one, otherwise all.
  *
- * @param  mixed $uri
+ * @param  mixed $uri[1] = object, $uri[2] = criteria
  * @return array
  */
 function doGet(array $uri): array
@@ -176,10 +176,14 @@ function doGet(array $uri): array
           'body' => null
         ];
       }
+      return $result;
     }
+    /* return result */
 
-    // no key provided, return all or selection
-    // paging would be nice here
+    /**
+     * no key provided, return all or selection
+     * paging would be nice here
+     */
     $records = [];
 
     if (isset($uri[2]) and is_array($uri[2])) {
