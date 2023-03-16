@@ -118,7 +118,7 @@ function parseParameters(?string $param)
     $result = [];
     foreach (explode('&', $param) as $param) {
       $param = explode('=', $param);
-      $result[$param[0]] = str_replace('*', '%', $param[1]); // use the like operator
+      $result[$param[0]] = '*'. str_replace('*', '%', $param[1]); // use the like operator
     }
     return $result;
   } else {
