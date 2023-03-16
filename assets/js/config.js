@@ -1,2 +1,2 @@
 //export const api_url = "https://projects.sbw.media"
-export const api_url = 'http://project.localhost'
+export const api_url = 'http://projects.localhost'
