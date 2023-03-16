@@ -142,7 +142,7 @@ function sendResponse(array $response): void
   // header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
   // header("Content-Type: application/json; charset=UTF-8");
 
-  \HttpHeader::sendAccessControlAllowHeaders('*');
+  \HttpHeader::sendAccessControlAllowOrigin('*');
   \HttpHeader::sendAccessControlAllowMethods('OPTIONS,GET,POST,PUT,DELETE');
   \HttpHeader::sendAccessControlMaxAge(3600);
   \HttpHeader::sendAccessControlAllowHeaders('Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
@@ -161,21 +161,26 @@ function sendResponse(array $response): void
  */
 function doGet(array $uri): array
 {
+  $result = null;
+  /* get one element by key */
   try {
     if (isset($uri[2]) and !is_array($uri[2])) {
       if ($obj = new $uri[1]($uri[2]) and $obj->isRecord()) {
-        $response['status_code'] = \HttpStatusCode::OK;
-        $response['body'] = json_encode($obj->getArrayCopy());
-        return $response;
+        $result = [
+          'status_code' => \HttpStatusCode::OK,
+          'body' => json_encode($obj->getArrayCopy())
+        ];
       } else {
-        return ['status_code' => \HttpStatusCode::BadRequest, 'body' => null];
+        $result = [
+          'status_code' => \HttpStatusCode::NotFound,
+          'body' => null
+        ];
       }
     }
 
     // no key provided, return all or selection
     // paging would be nice here
-
-    $result = [];
+    $records = [];
 
     if (isset($uri[2]) and is_array($uri[2])) {
       $where = [];
@@ -183,31 +188,37 @@ function doGet(array $uri): array
         $where[$key] = urldecode($value);
       }
       foreach (($uri[1])::findAll($where) as $o) {
-        $result[] = $o->getArrayCopy();
+        $records[] = $o->getArrayCopy();
       }
     } else {
       foreach (($uri[1])::findAll() as $id => $obj)
-        $result[] = $obj->getArrayCopy();
+        $records[] = $obj->getArrayCopy();
     }
 
-    if (count($result) === 0) {
-      return ['status_code' => \HttpStatusCode::NoContent, 'body' => null];
+    if (count($records) === 0) {
+      $result = [
+        'status_code' => \HttpStatusCode::NoContent,
+        'body' => null
+      ];
+    } else {
+      $result = [
+        'status_code' => \HttpStatusCode::OK,
+        'body' => json_encode($records)
+      ];
     }
   } catch (\InvalidArgumentException $e) {
-    $body = json_encode(['message' => $e->getMessage()]);
-    return [
+    $result = [
       'status_code' => \HttpStatusCode::BadRequest,
-      'body' => $body,
+      'body' => json_encode(['message' => $e->getMessage()]),
     ];
   } catch (\Exception $e) {
-    $body = json_encode(['message' => $e->getMessage()]);
-    return [
+    $result = [
       'status_code' => \HttpStatusCode::BadRequest,
-      'body' => $body,
+      'body' => json_encode(['message' => $e->getMessage()]),
     ];
+  } finally {
+    return $result;
   }
-
-  return ['status_code' => \HttpStatusCode::OK, 'body' => json_encode($result)];
 }
 
 /**
@@ -219,18 +230,26 @@ function doGet(array $uri): array
 function doCreate(array $uri): array
 {
   $response = [];
+  /* read the body of the request */
   $input = json_decode(file_get_contents('php://input'), true);
   try {
     $obj = $uri[1]::createFromArray($input);
     if ($obj->freeze()) {
-      $response['status_code'] = \HttpStatusCode::OK;
-      $response['body'] = json_encode(['id' => $obj->getKeyValue(), 'result' => 'created']);
+      $response = [
+        'status_code' => \HttpStatusCode::OK,
+        'body' => json_encode(['id' => $obj->getKeyValue(), 'result' => 'created'])
+      ];
     } else {
-      $response['status_code'] = \HttpStatusCode::InternalServerError;
+      $response = [
+        'status_code' => \HttpStatusCode::InternalServerError,
+        'body' => null
+      ];
     }
   } catch (\Exception $e) {
-    $response['status_code'] = \HttpStatusCode::BadRequest;
-    $response['body'] = json_encode(['result' => $e]);
+    $response = [
+      'status_code' => \HttpStatusCode::BadRequest,
+      'body' => json_encode(['result' => $e])
+    ];
   } finally {
     return $response;
   }
@@ -247,7 +266,10 @@ function doUpdate(array $uri): array
   $response = [];
 
   if (!isset($uri[2])) {
-    return ['status_code' => \HttpStatusCode::BadRequest, 'body' => null];
+    return [
+      'status_code' => \HttpStatusCode::BadRequest,
+      'body' => null
+    ];
   }
 
   $obj = new $uri[1]($uri[2]);
@@ -257,20 +279,29 @@ function doUpdate(array $uri): array
       $obj->setFromArray($input);
 
       if ($result = $obj->freeze()) {
-        $response['status_code'] = \HttpStatusCode::OK;
-        $response['body'] = json_encode(['id' => $obj->getKeyValue(), 'result' => $result]);
+        $response = [
+          'status_code' => \HttpStatusCode::OK,
+          'body' => json_encode(['id' => $obj->getKeyValue(), 'result' => $result])
+        ];
       } else {
-        $response['status_code'] = \HttpStatusCode::InternalServerError;
-        $response['body'] = null;
+        $response = [
+          'status_code' => \HttpStatusCode::InternalServerError,
+          'body' => null
+        ];
       }
     } catch (\Exception $e) {
-      $response['status_code'] = \HttpStatusCode::InternalServerError;
-      $response['body'] = $e->getMessage();
+      $response = [
+        'status_code' => \HttpStatusCode::InternalServerError,
+        'body' => $e->getMessage()
+      ];
     } finally {
       return $response;
     }
   }
-  return ['status_code' => \HttpStatusCode::NotFound, 'body' => null];
+  return [
+    'status_code' => \HttpStatusCode::NotFound,
+    'body' => null
+  ];
 }
 /**
  * Handle DELETE request, delete a record for {id}
@@ -282,7 +313,10 @@ function doDelete(array $uri): array
 {
   $response = [];
   if (!isset($uri[2])) {
-    return ['status_code' => \HttpStatusCode::BadRequest];
+    return [
+      'status_code' => \HttpStatusCode::BadRequest,
+      'body' => null
+    ];
   }
 
   try {
@@ -290,14 +324,21 @@ function doDelete(array $uri): array
     if (!$obj->isRecord()) {
       return ['status_code' => \HttpStatusCode::NotFound, 'body' => null];
     }
-    $response['status_code_header'] = 'HTTP/1.1 200 DELETED';
-    $response['body'] = json_encode(['id' => (int)$uri[2], 'result' => $obj->delete()]);
+    $response = [
+      'status_code_header' => 'HTTP/1.1 200 DELETED',
+      'body' => json_encode(['id' => (int)$uri[2], 'result' => $obj->delete()])
+    ];
   } catch (\Exception $e) {
-    $response['status_code'] = \HttpStatusCode::BadRequest;
-    $response['body'] = $e->getMessage();
+    $response = [
+      'status_code' => \HttpStatusCode::BadRequest,
+      'body' => $e->getMessage()
+    ];
   } finally {
     return $response;
   }
 
-  return ['status_code' => \HttpStatusCode::NotFound, 'body' => null];
+  return [
+    'status_code' => \HttpStatusCode::NotFound,
+    'body' => null
+  ];
 }
