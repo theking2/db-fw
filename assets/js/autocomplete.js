@@ -1,5 +1,5 @@
 "use strict";
-import { debounce } from "./utils.js"
+import { debounce, $ } from "./utils.js"
 
 export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
   let currentFocus = -1;
@@ -10,8 +10,20 @@ export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
       let a, i, val = input.value;
       closeAllLists();
       if (val.length > 0) {
+        addWaiting(input);
         const result = await fetch(ajaxUrl + val + '*');
+        if (result.status === 204) {
+          $('.autocomplete-waiting',input.parentNode).textContent = 'nichts gefunden';
+          removeWaiting(input);
+          return;
+        }
+        if (result.status !== 200) {
+          $('.autocomplete-waiting',input.parentNode).textContent = 'fehler';
+          removeWaiting(input);
+          return;
+        }
         const data = await result.json();
+        removeWaiting(input);
         const list = document.getElementById('select-list');
 
         const a = document.createElement('div');
@@ -20,10 +32,10 @@ export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
         input.parentNode.appendChild(a);
 
         let i = 10;
-        data.every(project => {
+        data.every(item => {
           const b = document.createElement('div');
-          b.innerHTML = project[fieldName];
-          b.dataset.id = project.ID;
+          b.innerHTML = item[fieldName];
+          b.dataset.id = item.ID;
           b.addEventListener('click', e => {
             inputID.value = b.dataset.id;
             input.value = b.innerHTML;
@@ -37,6 +49,18 @@ export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
       }
     }, 500)
   );
+
+  function addWaiting(input) {
+    let wait = document.createElement('div')
+    wait.classList.add('autocomplete-waiting');
+    wait.textContent = "loading";
+    input.parentNode.appendChild(wait);
+  }
+  function removeWaiting(input) {
+    setTimeout(_ => {
+      input.parentNode.removeChild(document.getElementsByClassName('autocomplete-waiting')[0]);
+    }, 1000);
+  }
 
   input.addEventListener("keydown", debounce((e) => {
     var x = document.getElementById(fieldName + "autocomplete-list");
