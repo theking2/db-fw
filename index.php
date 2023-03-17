@@ -16,7 +16,7 @@ require_once './inc/util.php';
   <nav>
     <a href="./index.php">Home</a>
     <a href="./timesheet-set.html">Zeiterfassung</a>
-    <a href="./vacation-set.html">Ferin</a>
+    <a href="./vacation-set.html">Ferien</a>
     <a href="./equipment-list.php">Equipment</a>
     <a href="./reservation-set.html">Reservation</a>
     <a href="./index.php">Home</a>
