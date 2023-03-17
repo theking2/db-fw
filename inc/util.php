@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-if(!defined('PATH_ROOT')) {
-  define('PATH_ROOT', __DIR__ . '/../');
+if(!defined('ROOT')) {
+  define('ROOT', $_SERVER['DOCUMENT_ROOT']);
 }
 if( !isset($log_file) ) {
-  $log_file = PATH_ROOT.'log/project_%s.log';
+  $log_file = ROOT.'/log/project_%s.log';
 }
 $log_file_handle = null;
 
-if( !$settings = parse_ini_file(PATH_ROOT.'config/settings.ini', true) ) {
+if( !$settings = parse_ini_file(ROOT . '/config/settings.ini', true) ) {
   _log('Could not load settings.ini');
   exit(0);
 }
@@ -39,7 +39,7 @@ function _log( $mess, $level = 'i' ) {
  */
 spl_autoload_register( function( string $class_name ) {
 	$class_name = str_replace('\\', '/', $class_name);
-	$filename = $_SERVER["DOCUMENT_ROOT"] . sprintf( '/classes/%s.php', $class_name );
+	$filename = sprintf( ROOT . '/classes/%s.php', $class_name );
   if( file_exists($filename) ) {
     require_once $filename;
     return;
