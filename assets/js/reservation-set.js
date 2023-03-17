@@ -1,6 +1,6 @@
-import { api_url } from "./config"
-import { $ } from "./utils"
-import { autocomplete } from "./autocomplete"
+import { api_url } from "./config.js"
+import { $ } from "./utils.js"
+import { autocomplete } from "./autocomplete.js"
 
 
 document.addEventListener('DOMContentLoaded', e => {

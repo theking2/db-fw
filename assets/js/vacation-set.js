@@ -1,7 +1,6 @@
 "use strict"
-import { $ } from "./utils"
-import { api_url } from "./config"
-import { autocomplete } from "./autocomplete"
+import { $ } from "./utils.js"
+import { api_url } from "./config.js"
 
 const main = document.getElementsByTagName('main')[0];
 
