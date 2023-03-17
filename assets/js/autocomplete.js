@@ -1,5 +1,5 @@
 "use strict";
-import { debounce } from "./utils"
+import { debounce } from "./utils.js"
 
 export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
   let currentFocus = -1;
