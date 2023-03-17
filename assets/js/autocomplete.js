@@ -1,12 +1,12 @@
 "use strict";
-import { api_url } from './config';
+import { debounce } from "./utils"
 
 export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
   let currentFocus = -1;
 
   input.addEventListener(
     'input',
-    debounce( async(e) => {
+    debounce(async (e) => {
       let a, i, val = input.value;
       closeAllLists();
       if (val.length > 0) {
@@ -38,33 +38,7 @@ export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
     }, 500)
   );
 
-  function throttle(func, wait) {
-    let lastTime = 0;
-
-    return (...args) => {
-      const now = Date.now();
-
-      let delay = now - lastTime;
-      console.log(delay);
-      if (delay >= wait) {
-        func(...args);
-
-        lastTime = now;
-      }
-    };
-  };
-
-  function debounce (func, wait) {
-    let timeout;
-
-    return (...args) => {
-      if (timeout) clearTimeout(timeout);
-
-      timeout = setTimeout(() => func(...args), wait);
-    };
-  };
-
-  input.addEventListener("keydown", (e) => {
+  input.addEventListener("keydown", debounce((e) => {
     var x = document.getElementById(fieldName + "autocomplete-list");
     if (x) x = x.getElementsByTagName("div");
     switch (e.keyCode) {
@@ -85,7 +59,7 @@ export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
       default:
         break;
     }
-  });
+  }, 1));
 
 
   /**
@@ -116,7 +90,7 @@ export const autocomplete = (input, inputID, ajaxUrl, fieldName) => {
    */
   function closeAllLists(elmnt) {
     const x = document.querySelectorAll(".autocomplete-items");
-    x.forEach( item => {
+    x.forEach(item => {
       if (elmnt != item && elmnt != input) {
         item.parentNode.removeChild(item);
       }

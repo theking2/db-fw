@@ -1,5 +1,5 @@
 import { api_url } from "./config"
-import { $ } from "./main"
+import { $ } from "./utils"
 import { autocomplete } from "./autocomplete"
 
 

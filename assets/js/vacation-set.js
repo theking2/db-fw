@@ -1,5 +1,5 @@
 "use strict"
-import { $ } from "./main"
+import { $ } from "./utils"
 import { api_url } from "./config"
 import { autocomplete } from "./autocomplete"
 
