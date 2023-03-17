@@ -186,9 +186,10 @@ option {
 
 .autocomplete-waiting {
   position: absolute;
-  right: 0;
+  right: 0.5em;
   top: 0.5em;
   font-style: italic;
+  font-size: 0.75em;
   opacity: 50%;
 }
 .autocomplete-items {
