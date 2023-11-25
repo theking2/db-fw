@@ -1,9 +1,9 @@
 # Projects application and api
 ## Configuration
-Most important database configuration in /classes/DB/Database.php
+Database configuration in /classes/DB/Database.php
 
 ## Discovery
-Visiting /discover witll get a all the tables and views in the configured database and create php files in /discover/src. these should be moved to the /classes folder in the proper namespace. If new entities or view are added make sure to add them to api/index.php to enable access
+Visiting /discover will get all the tables and views in the configured database and create php files in /discover/src. these should be moved to the /classes folder in the proper namespace. If new entities or views are added make sure to add them to api/index.php to enable access
 
 ## API
 The api is accessible using a redirect to /api/index.php, parameter . With the `.htaccess` when accessing a non existing file or folder it will redirect the path to `/api/index.php``
@@ -11,7 +11,7 @@ The api is accessible using a redirect to /api/index.php, parameter . With the `
 Request methods allowed: GET, POST, PUT, DELETE, OPTIONS
  
 The api has the following endpoints:
-GET: `/api/index.php/<endpoint>\[/\<id>]`
+GET: `/api/index.php/<endpoint>[/\<id>]`
 * returns a list of all entries in the database or a single object
  
 GET: `/api/index.php/\<endpoint>?\<query>`
