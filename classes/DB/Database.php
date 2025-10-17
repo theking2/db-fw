@@ -19,8 +19,8 @@ final class Database
 	private function __construct()
 	{
 		global $settings;
-	
-		$dsn = "mysql:host={$settings['db']['host']};dbname={$settings['db']['name']}";
+		$port = $settings['db']['port'] ?? '3306';
+		$dsn = "mysql:host={$settings['db']['host']};port={$port};dbname={$settings['db']['name']}";
 		$db_user = $settings['db']['user'];
 		$db_pass = $settings['db']['pass'];
 		$db_options = 
@@ -32,7 +32,7 @@ final class Database
 			];
 
 		try {
-			$this-> connection =  new \PDO( $dsn, $db_user, $db_pass, $db_options );
+			$this->connection =  new \PDO( $dsn, $db_user, $db_pass, $db_options );
 		} catch( \PDOException $e ) {
 			throw new DatabaseException( DatabaseException::ERR_CONNECTION, null, $e-> getMessage() );
 		}
