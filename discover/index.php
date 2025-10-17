@@ -28,7 +28,7 @@ $table_stat-> bindColumn(1, $table_name);
 while( $table_stat->fetch() ) {
   echo wrap_tag('h1',$table_name);
 
-  $sql = "show columns from $table_name";
+  $sql = "show columns from `$table_name`";
   $cols_stat = $db-> prepare( $sql );
   $cols_stat-> execute();
 
