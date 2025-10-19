@@ -56,7 +56,7 @@ spl_autoload_register( function( string $class_name ) {
  * @param string $text text to output
  * @param string $class class or classes to add, null is ignore
  * @param string $id id to add, null is ignore
- * @param Array $data if a data tag is required use value=val to insert a data-value=val string, null is ignore
+ * @param array $data if a data tag is required use value=val to insert a data-value=val string, null is ignore
  * Can be accessed with element.dataset.value"></tag>
  * @return string complete html string.
  */

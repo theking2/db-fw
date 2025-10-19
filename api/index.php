@@ -55,7 +55,7 @@ $uri = explode('/', $path);
 unset($uri[0]);
 
 if (!isEntityValid($uri[1])) {
-  sendResponse(['status_code' => \HttpStatusCode::NotFound, 'body' => null]);
+  sendResponse(['status_code' => HttpStatusCode::NotFound, 'body' => null]);
   exit();
 }
 
@@ -84,10 +84,10 @@ switch ($requestMethod) {
     $response = doDelete($uri);
     break;
   case 'OPTIONS':
-    $response = ['status_code' => \HttpStatusCode::OK, 'body' => null];
+    $response = ['status_code' => HttpStatusCode::OK, 'body' => null];
     break;
   default:
-    $response = ['status_code' => \HttpStatusCode::NotFound, 'body' => null];
+    $response = ['status_code' => HttpStatusCode::NotFound, 'body' => null];
     break;
 }
 
@@ -99,7 +99,7 @@ sendResponse($response);
  * @param  array $uri
  * @return void
  */
-function isEntityValid(?string $entity)
+function isEntityValid(?string $entity): bool
 {
   global $allowed;
   return $entity and in_array($entity, $allowed);
@@ -111,7 +111,7 @@ function isEntityValid(?string $entity)
  * @param  array $uri
  * @return void
  */
-function parseParameters(?string $param)
+function  parseParameters(?string $param): array|string
 {
   global $uri;
   if (!isset($uri[2])) {
@@ -167,12 +167,12 @@ function doGet(array $uri): array
     if (isset($uri[2]) and !is_array($uri[2])) {
       if ($obj = new $uri[1]($uri[2]) and $obj->isRecord()) {
         $result = [
-          'status_code' => \HttpStatusCode::OK,
+          'status_code' => HttpStatusCode::OK,
           'body' => json_encode($obj->getArrayCopy())
         ];
       } else {
         $result = [
-          'status_code' => \HttpStatusCode::NotFound,
+          'status_code' => HttpStatusCode::NotFound,
           'body' => null
         ];
       }
@@ -201,23 +201,23 @@ function doGet(array $uri): array
 
     if (count($records) === 0) {
       $result = [
-        'status_code' => \HttpStatusCode::NoContent,
+        'status_code' => HttpStatusCode::NoContent,
         'body' => null
       ];
     } else {
       $result = [
-        'status_code' => \HttpStatusCode::OK,
+        'status_code' => HttpStatusCode::OK,
         'body' => json_encode($records)
       ];
     }
   } catch (\InvalidArgumentException $e) {
     $result = [
-      'status_code' => \HttpStatusCode::BadRequest,
+      'status_code' => HttpStatusCode::BadRequest,
       'body' => json_encode(['message' => $e->getMessage()]),
     ];
   } catch (\Exception $e) {
     $result = [
-      'status_code' => \HttpStatusCode::BadRequest,
+      'status_code' => HttpStatusCode::BadRequest,
       'body' => json_encode(['message' => $e->getMessage()]),
     ];
   } finally {
@@ -240,18 +240,18 @@ function doCreate(array $uri): array
     $obj = $uri[1]::createFromArray($input);
     if ($obj->freeze()) {
       $response = [
-        'status_code' => \HttpStatusCode::OK,
+        'status_code' => HttpStatusCode::OK,
         'body' => json_encode(['id' => $obj->getKeyValue(), 'result' => 'created'])
       ];
     } else {
       $response = [
-        'status_code' => \HttpStatusCode::InternalServerError,
+        'status_code' => HttpStatusCode::InternalServerError,
         'body' => null
       ];
     }
   } catch (\Exception $e) {
     $response = [
-      'status_code' => \HttpStatusCode::BadRequest,
+      'status_code' => HttpStatusCode::BadRequest,
       'body' => json_encode(['result' => $e])
     ];
   } finally {
@@ -271,7 +271,7 @@ function doUpdate(array $uri): array
 
   if (!isset($uri[2])) {
     return [
-      'status_code' => \HttpStatusCode::BadRequest,
+      'status_code' => HttpStatusCode::BadRequest,
       'body' => null
     ];
   }
@@ -284,18 +284,18 @@ function doUpdate(array $uri): array
 
       if ($result = $obj->freeze()) {
         $response = [
-          'status_code' => \HttpStatusCode::OK,
+          'status_code' => HttpStatusCode::OK,
           'body' => json_encode(['id' => $obj->getKeyValue(), 'result' => $result])
         ];
       } else {
         $response = [
-          'status_code' => \HttpStatusCode::InternalServerError,
+          'status_code' => HttpStatusCode::InternalServerError,
           'body' => null
         ];
       }
     } catch (\Exception $e) {
       $response = [
-        'status_code' => \HttpStatusCode::InternalServerError,
+        'status_code' => HttpStatusCode::InternalServerError,
         'body' => $e->getMessage()
       ];
     } finally {
@@ -303,7 +303,7 @@ function doUpdate(array $uri): array
     }
   }
   return [
-    'status_code' => \HttpStatusCode::NotFound,
+    'status_code' => HttpStatusCode::NotFound,
     'body' => null
   ];
 }
@@ -318,7 +318,7 @@ function doDelete(array $uri): array
   $response = [];
   if (!isset($uri[2])) {
     return [
-      'status_code' => \HttpStatusCode::BadRequest,
+      'status_code' => HttpStatusCode::BadRequest,
       'body' => null
     ];
   }
@@ -326,7 +326,7 @@ function doDelete(array $uri): array
   try {
     $obj = new $uri[1]($uri[2]);
     if (!$obj->isRecord()) {
-      return ['status_code' => \HttpStatusCode::NotFound, 'body' => null];
+      return ['status_code' => HttpStatusCode::NotFound, 'body' => null];
     }
     $response = [
       'status_code_header' => 'HTTP/1.1 200 DELETED',
@@ -334,15 +334,11 @@ function doDelete(array $uri): array
     ];
   } catch (\Exception $e) {
     $response = [
-      'status_code' => \HttpStatusCode::BadRequest,
+      'status_code' => HttpStatusCode::BadRequest,
       'body' => $e->getMessage()
     ];
   } finally {
     return $response;
   }
 
-  return [
-    'status_code' => \HttpStatusCode::NotFound,
-    'body' => null
-  ];
 }
